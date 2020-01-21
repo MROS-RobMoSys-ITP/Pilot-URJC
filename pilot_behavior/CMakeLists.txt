@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(pilot_urjc)
+project(pilot_behavior)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -64,10 +64,8 @@ endif()
 add_executable(bt_bica src/bt_bica.cpp)
 ament_target_dependencies(bt_bica ${dependencies})
 
-install(FILES
-  bt.xml
-  DESTINATION share/${PROJECT_NAME}/tiago_test
-)
+
+install(DIRECTORY behavior_trees DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
   #bt_tiago
