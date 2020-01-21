@@ -1,0 +1,52 @@
+---
+
+navigation2:
+  ros__parameters:
+    type: system
+    parts:
+      controller_server
+      bt_navigator
+    modes:
+      __DEFAULT__:
+        controller_server: active
+        bt_navigator: active
+      MODERATE:
+        controller_server: active.SLOW
+        bt_navigator: active.ROUNDROBIN
+      PERFORMANCE:
+        controller_server: active.FAST
+        bt_navigator: active.SIMPLE
+
+bt_navigator:
+  ros__parameters:
+    type: node
+    modes:
+      __DEFAULT__:
+        ros__parameters:
+          bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
+      ROUNDROBIN:
+        ros__parameters:
+          bt_xml_filename: "navigate_w_replanning_and_round_robin_recovery.xml"
+      SIMPLE:
+        ros__parameters:
+          bt_xml_filename: "navigate_w_replanning.xml"
+
+controller_server:
+  ros__parameters:
+    type: node
+    modes:
+      __DEFAULT__:
+        ros__parameters:
+          max_vel_x: 0.26
+          max_vel_y: 0.0
+          max_vel_theta: 1.0
+      SLOW:
+        ros__parameters:
+          max_vel_x: 0.2
+          max_vel_y: 0.0
+          max_vel_theta: 0.6
+      FAST:
+        ros__parameters:
+          max_vel_x: 0.35
+          max_vel_y: 0.0
+          max_vel_theta: 1.3
