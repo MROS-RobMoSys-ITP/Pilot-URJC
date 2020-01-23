@@ -243,7 +243,9 @@ public:
     std::string order;
     order += "The table_1 wants: ";
     
-    RCLCPP_INFO(node_->get_logger(), "Edges in table_1 [%d]", graph_->get_edges_from_node("kitchen").size());
+    RCLCPP_INFO(node_->get_logger(), "Nodes table_1 [%d]", graph_->get_node_names_by_id("table_1").size());
+    RCLCPP_INFO(node_->get_logger(), "Edges in table_1 [%d]", graph_->get_edges_from_node("table_1").size());
+
     auto edges = graph_->get_edges_from_node_by_data("table_1", "wants", "symbolic");
 
     for (auto edge : edges)
