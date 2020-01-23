@@ -46,7 +46,7 @@ from rclpy.node import Node
 
 from rqt_gui_py.plugin import Plugin
 from std_msgs.msg import Float32, Header
-from system_modes.system_modes.srv import ChangeMode
+import system_modes.srv
 
 
 class Metacontroller(Node):
@@ -74,7 +74,11 @@ def main(args=None):
     print ("2) Internet lost")
     print ("3) Robot lost")
     print ("4) Obstacle")
-    print ("5) Dialog down")
+    print ("5) Charge completed")
+    print ("6) Internet reset")
+    print ("7) Robot located")
+    print ("8) Obstacle deleted")
+
 
     option = input()
 
@@ -83,7 +87,7 @@ def main(args=None):
         node_name = ''
         mode_name = ''
     elif option == "2":
-        print ("Internet lost.") 
+        print ("Internet lost. (Dialog down)") 
         node_name = ''
         mode_name = ''    
     elif option == "3":
@@ -95,8 +99,20 @@ def main(args=None):
         node_name = ''
         mode_name = ''
     elif option == "5":
-        print ("Dialog down.")
-        node_name = ''
+        print ("Charge completed.")
+        node_name = 'pilot'
+        mode_name = ''
+    elif option == "6":
+        print ("Internet reset.")
+        node_name = 'pilot'
+        mode_name = ''
+    elif option == "7":
+        print ("Robot located.")
+        node_name = 'pilot'
+        mode_name = ''
+    elif option == "8":
+        print ("Obstacle deleted")
+        node_name = 'pilot'
         mode_name = ''
     else:
         print("Invalid option.")

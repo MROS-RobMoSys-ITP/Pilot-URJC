@@ -31,7 +31,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'metacontroller_sim = metacontroller_pilot.metacontroller_pilot.metacontroller_sim:main',
+            'metacontroller = metacontroller_pilot.metacontroller_sim:main',
         ],
     },
 )
