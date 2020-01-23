@@ -26,6 +26,7 @@ find_package(ament_index_cpp REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(bica_behavior_tree REQUIRED)
 find_package(rclcpp_action REQUIRED)
+find_package(bica_graph REQUIRED)
 
 # uncomment the following section in order to fill in
 # further dependencies manually.
@@ -45,6 +46,7 @@ set(dependencies
   nav2_msgs
   bica_behavior_tree
   rclcpp_action
+  bica_graph
 )
 
 if(BUILD_TESTING)
@@ -64,8 +66,8 @@ endif()
 add_executable(bt_bica src/bt_bica.cpp)
 ament_target_dependencies(bt_bica ${dependencies})
 
-
 install(DIRECTORY behavior_trees DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
   #bt_tiago

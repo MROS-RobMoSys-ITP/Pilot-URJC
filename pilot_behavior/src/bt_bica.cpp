@@ -60,6 +60,7 @@
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 
+#include "bica_graph/TypedGraphNode.hpp"
 
 using namespace BT;
 using namespace std::placeholders;
@@ -68,153 +69,197 @@ class GetOrder: public bica_behavior_tree::ActivationActionNode
 {
 public:
   explicit GetOrder(const std::string & name)
-  : bica_behavior_tree::ActivationActionNode(name), counter_(0)
+  : bica_behavior_tree::ActivationActionNode(name)
   {
+    node_ = rclcpp::Node::make_shared(name);
+    graph_ = std::make_shared<bica_graph::TypedGraphNode>(node_->get_name());
   }
 
   BT::NodeStatus tick() override
   {
-    std::cerr << "GetOrder " << std::endl;
+
+    RCLCPP_INFO(node_->get_logger(), "GetOrder");
+    graph_->add_node(bica_graph::Node{"sonny", "robot"});
+    graph_->add_node(bica_graph::Node{"table_1", "table"});
+    graph_->add_node(bica_graph::Node{"bar", "table"});
+
+    graph_->add_node(bica_graph::Node{"water", "object"});
+    graph_->add_node(bica_graph::Node{"toastie", "object"});
+    graph_->add_node(bica_graph::Node{"mango_juice", "object"});
+
+    graph_->add_edge(bica_graph::Edge{"wants", "symbolic", "table_1", "water"});
+    graph_->add_edge(bica_graph::Edge{"wants", "symbolic", "table_1", "toastie"});
+    graph_->add_edge(bica_graph::Edge{"wants", "symbolic", "table_1", "mango_juice"});
+
+
     return BT::NodeStatus::SUCCESS;
 
   }
 
 private:
-  int counter_;
+  rclcpp::Node::SharedPtr node_;
+  std::shared_ptr<bica_graph::TypedGraphNode> graph_;
+
 };
 
-
-
-class NavigateToBarman: public bica_behavior_tree::ActivationActionNode, rclcpp::Node
+class NavigateToBarman: public bica_behavior_tree::ActivationActionNode
 {
 public:
   explicit NavigateToBarman(const std::string & name)
-  : Node(name), bica_behavior_tree::ActivationActionNode(name), counter_(0)
+  : bica_behavior_tree::ActivationActionNode(name), goal_sended_(false)
   {
-    /*pos_sub_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
+    node_ = rclcpp::Node::make_shared(name);
+    pos_sub_ = node_->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
       "/amcl_pose",
       10,
-      std::bind(&NavigateToBarman::current_pos_callback, this, _1));*/
+      std::bind(&NavigateToBarman::current_pos_callback, this, _1));  
+    geometry_msgs::msg::PoseStamped p;
+    p.pose.position.x = 0.636;
+    p.pose.position.y = 0.545;
+    p.header.frame_id = "map";
+    waypoints_["wp_bar"] = p;
   }
-//
-//  void current_pos_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg)
-//  {
-//    current_pos_ = msg->pose.pose;
-//  }
-//
-//   double getDistance(const geometry_msgs::msg::Pose & pos1, const geometry_msgs::msg::Pose & pos2)
-//  {
-//    return sqrt((pos1.position.x - pos2.position.x) * (pos1.position.x - pos2.position.x) +
-//             (pos1.position.y - pos2.position.y) * (pos1.position.y - pos2.position.y));
-//  }
-//
+
+  void current_pos_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg)
+  {
+    current_pos_ = msg->pose.pose;
+  }
+
+  double getDistance(const geometry_msgs::msg::Pose & pos1, const geometry_msgs::msg::Pose & pos2)
+  {
+    return sqrt((pos1.position.x - pos2.position.x) * (pos1.position.x - pos2.position.x) +
+             (pos1.position.y - pos2.position.y) * (pos1.position.y - pos2.position.y));
+  }
   
-  // void nav(){
-  //   //rclcpp::spin_some(this->get_node_base_interface());
+  void navigate_to_pose(geometry_msgs::msg::PoseStamped goal_pose){
+    rclcpp::spin_some(node_->get_node_base_interface());
 
-  //   std::cerr << "NavigateToBarman " << std::endl;
+    navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
+      node_->get_node_base_interface(),
+      node_->get_node_graph_interface(),
+      node_->get_node_logging_interface(),
+      node_->get_node_waitables_interface(),
+      "NavigateToPose");
+       
+    bool is_action_server_ready = false;
+    do {
+      RCLCPP_WARN(node_->get_logger(), "Waiting for action server");
+      is_action_server_ready = navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
+    } while (!is_action_server_ready);
 
-  //   navigation_action_client_ = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(shared_from_this(), "NavigateToPose");
+    RCLCPP_INFO(node_->get_logger(), "Starting navigation");
 
-  //   bool is_action_server_ready = false;
-  //   do {
-  //     is_action_server_ready = navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
+    navigation_goal_.pose = goal_pose;
+    dist_to_move = getDistance(goal_pose.pose, current_pos_);
 
-  //   } while (!is_action_server_ready);
+    auto send_goal_options =
+      rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
+    send_goal_options.result_callback = [this](auto) {
+      RCLCPP_INFO(node_->get_logger(), "Navigation completed");
+      feedback_ = 100.0;
+    };
 
-  //   auto wp_to_navigate = "";  // ¡¡CAMBIAR ESTO!!
-  //   //RCLCPP_INFO(get_logger(), "Start navigation to [%s]", wp_to_navigate.c_str());
-
-  //   goal_pos_ = waypoints_[wp_to_navigate];
-  //   navigation_goal_.pose = goal_pos_;
-
-  //   dist_to_move = getDistance(goal_pos_.pose, current_pos_);
-
-  //   auto send_goal_options =
-  //     rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
-  //   send_goal_options.result_callback = [this](auto) {feedback_ = 100.0;};
-
-  //   future_navigation_goal_handle_ =
-  //     navigation_action_client_->async_send_goal(navigation_goal_, send_goal_options);
-
-  //   navigation_goal_handle_ = future_navigation_goal_handle_.get();
-  //   if (!navigation_goal_handle_) {
-  //     RCLCPP_ERROR(get_logger(), "Goal was rejected by server");
-  //   }
-  // }
+    goal_handle_future_ =
+      navigation_action_client_->async_send_goal(navigation_goal_, send_goal_options);
+    goal_sended_ = true;
+    if (rclcpp::spin_until_future_complete(node_, goal_handle_future_) !=
+        rclcpp::executor::FutureReturnCode::SUCCESS)
+    {
+      RCLCPP_ERROR(node_->get_logger(), "send goal call failed :(");
+      goal_sended_ = false;
+      return;
+    }
+    
+    navigation_goal_handle_ = goal_handle_future_.get();  
+    if (!navigation_goal_handle_) {
+      goal_sended_ = false;
+      RCLCPP_ERROR(node_->get_logger(), "Goal was rejected by server");
+    }
+  }
 
   BT::NodeStatus tick() override
   {
-    // rclcpp::spin_some(this->get_node_base_interface());
+    if (!goal_sended_)
+      navigate_to_pose(waypoints_["wp_bar"]);
 
-    // auto status = navigation_goal_handle_->get_status();
+    rclcpp::spin_some(node_->get_node_base_interface());
+    auto status = navigation_goal_handle_->get_status();
 
-    // // Check if the goal is still executing
-    // if (status == action_msgs::msg::GoalStatus::STATUS_ACCEPTED ||
-    //   status == action_msgs::msg::GoalStatus::STATUS_EXECUTING)
-    // {
-    //   RCLCPP_DEBUG(get_logger(), "Executing move action");
-    // } else {
-    //   RCLCPP_WARN(get_logger(), "Error Executing");
-    // }
+    // Check if the goal is still executing
+    if (status == action_msgs::msg::GoalStatus::STATUS_ACCEPTED ||
+      status == action_msgs::msg::GoalStatus::STATUS_EXECUTING)
+    {
+      RCLCPP_INFO(node_->get_logger(), "Executing action");
+    } 
+    else if(status == action_msgs::msg::GoalStatus::STATUS_SUCCEEDED)
+    {
+      return BT::NodeStatus::SUCCESS;
+    }
+    else
+    {
+      RCLCPP_WARN(node_->get_logger(), "Error Executing, status code [%d]", status);
+    }
 
-    // double dist_to_goal = getDistance(goal_pos_.pose, current_pos_);
-
-    // feedback_ = 100.0 * (1.0 - (dist_to_goal / dist_to_move));
-
-    // if (feedback_ >= 100.0) {
-    //   return BT::NodeStatus::SUCCESS;
-
-    // }else {
-    //   return BT::NodeStatus::RUNNING;
-    // }
-    std::cerr << "NavigateToBarman " << std::endl;
-    return BT::NodeStatus::SUCCESS;
+    return BT::NodeStatus::RUNNING;
   }
 
 private:
   
-  // using NavigationGoalHandle =
-  //   rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>;
+  using NavigationGoalHandle =
+    rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>;
 
-  int counter_;
-  
-  // std::map<std::string, geometry_msgs::msg::PoseStamped> waypoints_;
-  // nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
-  // NavigationGoalHandle::SharedPtr navigation_goal_handle_;
-  // double dist_to_move;
-  // geometry_msgs::msg::Pose current_pos_;
-  // geometry_msgs::msg::PoseStamped goal_pos_;
-  // rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
-  // std::shared_future<NavigationGoalHandle::SharedPtr> future_navigation_goal_handle_;
-  // std::string arguments_;
+  rclcpp::Node::SharedPtr node_;
+  std::map<std::string, geometry_msgs::msg::PoseStamped> waypoints_;
+  nav2_msgs::action::NavigateToPose::Goal navigation_goal_;
+  NavigationGoalHandle::SharedPtr navigation_goal_handle_;
+  double dist_to_move;
+  geometry_msgs::msg::Pose current_pos_;
+  geometry_msgs::msg::PoseStamped goal_pos_;
+  rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
+  std::shared_future<NavigationGoalHandle::SharedPtr> goal_handle_future_;
+  std::string arguments_;
 
-  // rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pos_sub_;
-  // //std::shared_ptr<ExecutionAction::Feedback> feedback_;
-  // float feedback_;
+  rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pos_sub_;
+  //std::shared_ptr<ExecutionAction::Feedback> feedback_;
+  float feedback_;
+  bool goal_sended_;
   
 };
-
-
-
 
 
 class InteractWithBarman : public bica_behavior_tree::ActivationActionNode
 {
 public:
   explicit InteractWithBarman(const std::string & name)
-  : bica_behavior_tree::ActivationActionNode(name), counter_(0)
+  : bica_behavior_tree::ActivationActionNode(name)
   {
+    node_ = rclcpp::Node::make_shared(name);
+    graph_ = std::make_shared<bica_graph::TypedGraphNode>(node_->get_name());
   }
 
   BT::NodeStatus tick() override
   {
-    std::cerr << "InteractWithBarman " << std::endl;
+    // TODO: Decir la comanda al barman
+    std::string order;
+    order += "The table_1 wants: ";
+    
+    RCLCPP_INFO(node_->get_logger(), "Nodes table_1 [%d]", graph_->get_node_names_by_id("table_1").size());
+    RCLCPP_INFO(node_->get_logger(), "Edges in table_1 [%d]", graph_->get_edges_from_node("table_1").size());
+
+    auto edges = graph_->get_edges_from_node_by_data("table_1", "wants", "symbolic");
+
+    for (auto edge : edges)
+    {
+      order+= edge.target;
+      order+= " ,";
+    }
+    RCLCPP_INFO(node_->get_logger(), "%s", order.c_str());
     return BT::NodeStatus::SUCCESS;
   }
 
 private:
-  int counter_;
+  rclcpp::Node::SharedPtr node_;
+  std::shared_ptr<bica_graph::TypedGraphNode> graph_;
 };
 
 class CheckOrder: public bica_behavior_tree::ActivationActionNode
@@ -227,6 +272,7 @@ public:
 
   BT::NodeStatus tick() override
   {
+    // Comprobar la comanda con darknet_ros
     std::cerr << "CheckOrder " << std::endl;
     return BT::NodeStatus::SUCCESS;
   }
@@ -246,7 +292,9 @@ public:
 
   BT::NodeStatus tick() override
   {
+    // Navegar a la mesa destino
     std::cerr << "NavigateToClient " << std::endl;
+
     return BT::NodeStatus::SUCCESS;
   }
 
