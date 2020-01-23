@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>metacontroller_pilot</name>
+  <version>0.0.1</version>
+  <description>TODO: Package description</description>
+  <maintainer email="lbajo9@gmail.com">Lorena Bajo Rebollo</maintainer>
+  <license>Apache License, Version 2.0</license>
+
+  <build_depend>rclpy</build_depend>
+  <build_depend>system_modes</build_depend>
+
+  <exec_depend>system_modes</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
