@@ -36,3 +36,24 @@ The modes change next parameters in the components (shown in the figure), with s
 
 
 ![pilot_overview](resources/pilot-urjc.png)
+
+## Launching bt\_modes\_navigator demo
+
+1. Launch gazebo sim and nav2 system (gazebo headless mode ON):
+```
+ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
+```
+2. Run mode-manager:
+```
+ros2 run system_modes mode-manager [path]/nav2_modes.yaml
+```
+(nav2\_modes example in nav2\_bt\_modes_navigator/system\_modes/nav2\_modes.yaml) to able the change of nav2 modes.
+1. Finally call the service to change the mode:
+```
+ros2 service call [/node]/change_mode system_modes/ChangeMode "{node_name: 'node_name', mode_name: 'MODE_NAME'}"
+```
+example:
+```
+ros2 service call /bt_navigator/change_mode system_modes/ChangeMode "{node_name: 'navigation2', mode_name: 'BATTERY_CONTINGENCY'}" 
+```
+ 
