@@ -2,7 +2,7 @@
 
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2019, Intelligent Robotics Core S.L.
+# Copyright (c) 2020, Intelligent Robotics Core S.L.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# Author: Lorena Bajo Rebollo - lbajo9@gmail.com
+# Author: Lorena Bajo Rebollo - lorena.bajo@urjc.es
 
 import argparse
 import functools
@@ -52,7 +52,7 @@ import system_modes.srv
 class Metacontroller(Node):
     def __init__(self, node_name, mode_name):
         super().__init__('metacontroller')
-        cli = self.create_client(ChangeMode, '/pilot/change_mode')
+        cli = self.create_client(ChangeMode, '/'+node_name+'/change_mode')
         while not cli.wait_for_service(timeout_sec=1.0):
             print('service not available, waiting again...')
         req = ChangeMode.Request()
@@ -68,52 +68,55 @@ class Metacontroller(Node):
 
 
 def main(args=None):
-
+    print ("------------------------------")
     print ("Specify the option number:")
-    print ("1) Battery low")
-    print ("2) Internet lost")
-    print ("3) Robot lost")
-    print ("4) Obstacle")
-    print ("5) Charge completed")
-    print ("6) Internet reset")
-    print ("7) Robot located")
-    print ("8) Obstacle deleted")
+    print ("------------------------------")
+    print (" 1) Battery low")
+    print (" 2) Internet lost")
+    print (" 3) Robot lost")
+    print (" 4) Obstacle")
+    print ("------------------------------")
+    print (" 5) Charge completed")
+    print (" 6) Internet reset")
+    print (" 7) Robot located")
+    print (" 8) Obstacle deleted")
+    print ("------------------------------")
 
 
     option = input()
 
     if option == "1":
         print ("Battery low.") 
-        node_name = ''
-        mode_name = ''
+        node_name = 'pilot'
+        mode_name = 'BATTERY'
     elif option == "2":
         print ("Internet lost. (Dialog down)") 
-        node_name = ''
-        mode_name = ''    
+        node_name = 'pilot'
+        mode_name = 'DIALOG'  # doesn't exist  
     elif option == "3":
         print ("Robot lost.") 
-        node_name = ''
-        mode_name = ''
+        node_name = 'pilot'
+        mode_name = 'ROBOT_LOST'
     elif option == "4":
         print ("Obstacle.") 
-        node_name = ''
-        mode_name = ''
+        node_name = 'pilot'
+        mode_name = 'OBSTACLE'
     elif option == "5":
         print ("Charge completed.")
         node_name = 'pilot'
-        mode_name = ''
+        mode_name = 'NORMAL'
     elif option == "6":
         print ("Internet reset.")
         node_name = 'pilot'
-        mode_name = ''
+        mode_name = 'NORMAL'
     elif option == "7":
         print ("Robot located.")
         node_name = 'pilot'
-        mode_name = ''
+        mode_name = 'NORMAL'
     elif option == "8":
         print ("Obstacle deleted")
         node_name = 'pilot'
-        mode_name = ''
+        mode_name = 'NORMAL'
     else:
         print("Invalid option.")
         sys.exit()
