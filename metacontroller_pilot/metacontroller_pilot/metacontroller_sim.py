@@ -72,16 +72,15 @@ def main(args=None):
     print ("Specify the option number:")
     print ("------------------------------")
     print (" 1) Battery low")
-    print (" 2) Internet lost")
+    print (" 2) Network down")
     print (" 3) Robot lost")
-    print (" 4) Obstacle")
+    print (" 4) Obstructed")
     print ("------------------------------")
     print (" 5) Charge completed")
-    print (" 6) Internet reset")
+    print (" 6) Network reset")
     print (" 7) Robot located")
-    print (" 8) Obstacle deleted")
+    print (" 8) Obstructed solved")
     print ("------------------------------")
-
 
     option = input()
 
