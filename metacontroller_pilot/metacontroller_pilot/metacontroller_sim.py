@@ -46,7 +46,7 @@ from rclpy.node import Node
 
 from rqt_gui_py.plugin import Plugin
 from std_msgs.msg import Float32, Header
-import system_modes.srv
+from system_modes.srv import ChangeMode
 
 
 class Metacontroller(Node):
@@ -61,11 +61,11 @@ class Metacontroller(Node):
 
         future = cli.call_async(req)
         rclpy.spin_until_future_complete(self, future)
-        if future.result() is True:
+        if future.result() is not None:
             self.get_logger().info('Mode change completed')
+            sys.exit()
         else:
             self.get_logger().error('Exception while calling service: %r' % future.exception())
-
 
 def main(args=None):
     print ("------------------------------")
@@ -87,7 +87,7 @@ def main(args=None):
     if option == "1":
         print ("Battery low.") 
         node_name = 'pilot'
-        mode_name = 'BATTERY'
+        mode_name = 'LOW_BATTERY'
     elif option == "2":
         print ("Internet lost. (Dialog down)") 
         node_name = 'pilot'
@@ -95,11 +95,11 @@ def main(args=None):
     elif option == "3":
         print ("Robot lost.") 
         node_name = 'pilot'
-        mode_name = 'ROBOT_LOST'
+        mode_name = 'LOST'
     elif option == "4":
         print ("Obstacle.") 
         node_name = 'pilot'
-        mode_name = 'OBSTACLE'
+        mode_name = 'OBSTRUCTED'
     elif option == "5":
         print ("Charge completed.")
         node_name = 'pilot'
