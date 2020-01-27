@@ -16,9 +16,18 @@ pilot:
       PERFORMANCE:
         controller_server: active.FAST
         bt_navigator: active.SIMPLE
-      RECOVERY:
-        controller_server: active.RECOVERY
-        bt_navigatior: active.RECOVERY
+      LOW_BATTERY:
+        controller_server: active.LOW_BATTERY
+        bt_navigator: active.LOW_BATTERY
+      LOST:
+        controller_server: active.LOST
+        bt_navigator: active.LOST
+      OBSTRUCTED:
+        controller_server: active.OBSTRUCTED
+        bt_navigator: active.OBSTRUCTED
+      NORMAL:
+        controller_server: active.NORMAL
+        bt_navigator: active.NORMAL
 
 bt_navigator:
   ros__parameters:
@@ -33,8 +42,18 @@ bt_navigator:
       SIMPLE:
         ros__parameters:
           bt_xml_filename: "navigate_w_replanning.xml"
-      RECOVERY:
-          bt_xml_filename: "navigate_w_replanning.xml" #CAMBIAR
+      LOW_BATTERY:
+        ros__parameters:
+          bt_xml_filename: "navigate_w_replanning_and_battery_warning.xml"
+      LOST:
+        ros__parameters:
+          bt_xml_filename: "navigate_w_replanning_and_robot_lost.xml"
+      OBSTRUCTED:
+        ros__parameters:
+          bt_xml_filename: "navigate_w_replanning_and_obstacle_detected.xml"
+      NORMAL:
+        ros__parameters:
+          bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
 
 controller_server:
   ros__parameters:
@@ -55,8 +74,23 @@ controller_server:
           max_vel_x: 0.35
           max_vel_y: 0.0
           max_vel_theta: 1.3
-      RECOVERY: #CAMBIAR
+      LOW_BATTERY: 
         ros__parameters:
-          max_vel_x: 0.1
+          max_vel_x: 0.2
           max_vel_y: 0.0
-          max_vel_theta: 0.2
+          max_vel_theta: 0.6
+      LOST: 
+        ros__parameters:
+          max_vel_x: 0.0
+          max_vel_y: 0.0
+          max_vel_theta: 0.0
+      OBSTRUCTED: 
+        ros__parameters:
+          max_vel_x: 0.0
+          max_vel_y: 0.0
+          max_vel_theta: 0.0
+      NORMAL:
+        ros__parameters:
+          max_vel_x: 0.26
+          max_vel_y: 0.0
+          max_vel_theta: 1.0
