@@ -23,7 +23,6 @@ pilot:
         controller_server: active.LOST
         bt_navigator: active.LOST
       OBSTRUCTED:
-        controller_server: active.OBSTRUCTED
         bt_navigator: active.OBSTRUCTED
       NORMAL:
         controller_server: active.NORMAL
@@ -80,11 +79,6 @@ controller_server:
           max_vel_y: 0.0
           max_vel_theta: 0.6
       LOST: 
-        ros__parameters:
-          max_vel_x: 0.0
-          max_vel_y: 0.0
-          max_vel_theta: 0.0
-      OBSTRUCTED: 
         ros__parameters:
           max_vel_x: 0.0
           max_vel_y: 0.0
