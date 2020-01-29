@@ -37,23 +37,55 @@ The modes change next parameters in the components (shown in the figure), with s
 
 ![pilot_overview](resources/pilot-urjc.png)
 
-## Launching bt\_modes\_navigator demo
+## Launching pilot-urjc demo
+This pilot has been tested on different platforms. Above we show how to run the demo in each one.
+First of all, we have to download the dependencies packages. We will use **vcs-tool**
+  ```
+    cd [ros2_ws]/src
+    git clone https://github.com/MROS-RobMoSys-ITP/Pilot-URJC.git
+    vcs import < Pilot-URJC/dependencies.repos
+    cd ..
+    colcon build --symlink-install
+  ```  
+### Real TIAGo robot.
+  #### Before start:
+  - Make sure that the navigation, localization and map-server are switched off in the robot before start the demo.
+  - The shell windows that will launch the ros1_bridge and the ros1 components needs a correct [network configuration](http://wiki.ros.org/ROS/NetworkSetup), setting the ROS_IP and ROS_MASTER_URI environment variables.
+  - We have used rmw_cyclonedds_cpp as RMW_IMPLEMENTATION for the tests.
+  
+1. **![ros1_bridge](https://github.com/ros2/ros1_bridge)**:
+  To launch the demo in real TIAGo we have to use the ros1_bridge package, at this moment TIAGo drivers are not migrated to ROS2.
+  ```
+    ros2 run ros1_bridge dynamic_bridge __log_disable_rosout:=true
+  ```
+2. **[nav2-TIAGo-support](https://github.com/IntelligentRoboticsLabs/nav2-TIAGo-support)**:
+  The integration of the nav2 and TIAGo through the ros1_bridge needs two tools to fix some issues.
+  ```
+    rosrun tf_static_resender tf_static_resender
+  ```
+  ```
+    rosrun cmd_vel_mux cmd_vel_mux_node
+  ```
+3. **[system-modes](https://github.com/micro-ROS/system_modes)**:
+  ```
+    ros2 run system_modes mode-manager [ros2_ws]/src/Pilot-URJC/metacontroller_pilot/modes_conf/pilot_modes.yaml
+  ```
+4. **A dummy metacontroller**:
+  With this tool, you can simulate different contingency scenarios.
+  ```
+    ros2 run metacontroller_pilot metacontroller
+  ```
+5. **Demo launcher**:
+  This launcher includes rviz, nav2, amcl, map-server, etc.
+  ```
+    ros2 launch pilot_urjc_bringup nav2_tiago_urjc_launch.py
+  ```
+  
+### Launching in simulated turtlebot3.
 
-1. Launch gazebo sim and nav2 system (gazebo headless mode ON):
-```
-ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
-```
-2. Run mode-manager:
-```
-ros2 run system_modes mode-manager [path]/nav2_modes.yaml
-```
-(nav2\_modes example in nav2\_bt\_modes_navigator/system\_modes/nav2\_modes.yaml) to able the change of nav2 modes.
-1. Finally call the service to change the mode:
-```
-ros2 service call [/node]/change_mode system_modes/ChangeMode "{node_name: 'node_name', mode_name: 'MODE_NAME'}"
-```
-example:
-```
-ros2 service call /bt_navigator/change_mode system_modes/ChangeMode "{node_name: 'navigation2', mode_name: 'BATTERY_CONTINGENCY'}" 
-```
+1. **Launch gazebo sim and nav2 system (gazebo headless mode ON):**
+  ```   
+  ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
+  ```
+2. **Execute the 3 and 4 steps from above.**
  
