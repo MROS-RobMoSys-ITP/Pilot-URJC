@@ -83,7 +83,7 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
 
 1. **Launch gazebo sim and nav2 system (gazebo headless mode ON):**
   ```   
-  ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
+    ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
   ```
 2. **A dummy metacontroller**:
   With this tool, you can simulate different contingency scenarios.
@@ -93,7 +93,7 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
 
 3. **[system-modes](https://github.com/micro-ROS/system_modes)**:
   ```
-      ros2 run system_modes mode-manager [ros2_ws]/src/Pilot-URJC/pilot_urjc_bringup/params/pilot_modes.yaml
+    ros2 run system_modes mode-manager [ros2_ws]/src/Pilot-URJC/pilot_urjc_bringup/params/pilot_modes.yaml
   ```
 
 ### Launching in simulated turtlebot2.
@@ -101,12 +101,12 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
 1. **Turtlebot ROS1 Gazebo simulator:**
   Launch the turtlebot2 simulator and its sensors. If you don't have a launcher to do this, you can find an example [here](https://github.com/IntelligentRoboticsLabs/gb_robots/tree/simulator) 
   ```   
-  ros2 launch gb_robots sim_house.launch
+    ros2 launch gb_robots sim_house.launch
   ```
   
 2. **![ros1_bridge](https://github.com/ros2/ros1_bridge)**:
   ```   
-  ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
+    ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
   ```
 3. **[nav2-TIAGo-support](https://github.com/IntelligentRoboticsLabs/nav2-TIAGo-support)**:
   The integration of the nav2 and turtlebot2 through the ros1_bridge needs one tools to fix some issues.
