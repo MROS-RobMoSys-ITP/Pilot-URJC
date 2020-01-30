@@ -16,7 +16,7 @@
 
 import os
 
-from ament_index_python.packages import get_package_share_directory
+from ament_index_python.packages import get_package_share_directory, get_package_prefix
 
 from launch import LaunchDescription
 from launch.actions import (DeclareLaunchArgument, EmitEvent, ExecuteProcess,
@@ -46,6 +46,7 @@ def generate_launch_description():
     bt_xml_file = LaunchConfiguration('bt_xml_file')
     autostart = LaunchConfiguration('autostart')
     use_remappings = LaunchConfiguration('use_remappings')
+    cmd_vel_topic = LaunchConfiguration('cmd_vel_topic')
 
     # Launch configuration variables specific to simulation
     rviz_config_file = LaunchConfiguration('rviz_config_file')
@@ -69,7 +70,7 @@ def generate_launch_description():
         description='Whether to apply a namespace to the navigation stack')
     declare_map_yaml_cmd = DeclareLaunchArgument(
         'map',
-        default_value=os.path.join(pilot_dir, 'maps', 'urjc_restaurant.yaml'),
+        default_value=os.path.join(pilot_dir, 'maps/urjc/restaurant', 'map.yaml'),
         description='Full path to map file to load')
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(
@@ -81,6 +82,11 @@ def generate_launch_description():
         'params_file',
         default_value=os.path.join(pilot_dir, 'params', 'nav2_tiago_params.yaml'),
         description='Full path to the ROS2 parameters file to use for all launched nodes')
+
+    #declare_params_file_cmd = DeclareLaunchArgument(
+    #    'params_file',
+    #    default_value=os.path.join(nav2_bringup_dir, 'params', 'nav2_params.yaml'),
+    #    description='Full path to the ROS2 parameters file to use for all launched nodes')
 
     declare_bt_xml_cmd = DeclareLaunchArgument(
         'bt_xml_file',
@@ -106,12 +112,16 @@ def generate_launch_description():
         'use_rviz',
         default_value='True',
         description='Whether to start RVIZ')
+    declare_cmd_vel_topic_cmd = DeclareLaunchArgument(
+        'cmd_vel_topic',
+        default_value='cmd_vel_mux',
+        description='Command velocity topic')
+
 
     start_rviz_cmd = Node(
         condition=IfCondition(use_rviz),
         package='rviz2',
         node_executable='rviz2',
-        node_name='rviz2',
         arguments=['-d', rviz_config_file],
         output='log',
         use_remappings=IfCondition(use_remappings),
@@ -135,7 +145,28 @@ def generate_launch_description():
                           'params_file': params_file,
                           'bt_xml_file': bt_xml_file,
                           'autostart': autostart,
-                          'use_remappings': use_remappings}.items())
+                          'use_remappings': use_remappings,
+                          'cmd_vel_topic': cmd_vel_topic}.items())
+
+
+    shm_model_path = (get_package_share_directory('pilot_urjc_bringup') +
+                '/params/pilot_modes.yaml')
+
+    # Start as a normal node is currently not possible.
+    # Path to SHM file should be passed as a ROS parameter.
+    #    mode_manager_node = launch_ros.actions.Node(
+    #        package='system_modes',
+    #        node_executable='mode-manager',
+    #        node_name='mode_manager',
+    #        node_namespace='example',
+    #        arguments=[shm_model_path],
+    #        output='screen')
+    # Hack: Launch the node directly as an executable.
+    mode_manager_executable = (get_package_prefix('system_modes') + 
+                 '/lib/system_modes/mode-manager')
+    mode_manager_node = ExecuteProcess(
+        cmd=[mode_manager_executable, shm_model_path])
+        
 
     # Create the launch description and populate
     ld = LaunchDescription()
@@ -152,6 +183,7 @@ def generate_launch_description():
 
     ld.add_action(declare_rviz_config_file_cmd)
     ld.add_action(declare_use_rviz_cmd)
+    ld.add_action(declare_cmd_vel_topic_cmd)
 
     # Add any conditioned actions
     ld.add_action(start_rviz_cmd)
@@ -161,5 +193,9 @@ def generate_launch_description():
 
     # Add the actions to launch all of the navigation nodes
     ld.add_action(bringup_cmd)
+
+    # Add system modes manager
+    ld.add_action(mode_manager_node)
+
 
     return ld

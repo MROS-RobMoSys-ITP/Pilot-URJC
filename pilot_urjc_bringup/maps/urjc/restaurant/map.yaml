@@ -1,4 +1,4 @@
-image: urjc_test1.pgm
+image: map.pgm
 resolution: 0.1
 origin: [0.00000, 0.00000, 0.00000]
 negate: 0
