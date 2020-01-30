@@ -66,19 +66,17 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
   ```
     rosrun cmd_vel_mux cmd_vel_mux_node
   ```
-3. **[system-modes](https://github.com/micro-ROS/system_modes)**:
-  ```
-    ros2 run system_modes mode-manager [ros2_ws]/src/Pilot-URJC/metacontroller_pilot/modes_conf/pilot_modes.yaml
-  ```
-4. **A dummy metacontroller**:
+  
+3. **A dummy metacontroller**:
   With this tool, you can simulate different contingency scenarios.
   ```
     ros2 run metacontroller_pilot metacontroller
   ```
-5. **Demo launcher**:
-  This launcher includes rviz, nav2, amcl, map-server, etc.
+4. **Demo launcher**:
+  This launcher includes rviz, nav2, amcl, map-server, **[system-modes](https://github.com/micro-ROS/system_modes)**, etc.
+  The **system-modes mode-manager** takes the modes description from params/pilot_modes.yaml.
   ```
-    ros2 launch pilot_urjc_bringup nav2_tiago_urjc_launch.py
+    ros2 launch pilot_urjc_bringup nav2_tiago_launch.py
   ```
   
 ### Launching in simulated turtlebot3.
@@ -87,5 +85,43 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
   ```   
   ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
   ```
-2. **Execute the 3 and 4 steps from above.**
+2. **A dummy metacontroller**:
+  With this tool, you can simulate different contingency scenarios.
+  ```
+    ros2 run metacontroller_pilot metacontroller
+  ```
+
+3. **[system-modes](https://github.com/micro-ROS/system_modes)**:
+  ```
+      ros2 run system_modes mode-manager [ros2_ws]/src/Pilot-URJC/pilot_urjc_bringup/params/pilot_modes.yaml
+  ```
+
+### Launching in simulated turtlebot2.
+
+1. **Turtlebot ROS1 Gazebo simulator:**
+  Launch the turtlebot2 simulator and its sensors. If you don't have a launcher to do this, you can find an example [here](https://github.com/IntelligentRoboticsLabs/gb_robots/tree/simulator) 
+  ```   
+  ros2 launch gb_robots sim_house.launch
+  ```
+  
+2. **![ros1_bridge](https://github.com/ros2/ros1_bridge)**:
+  ```   
+  ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
+  ```
+3. **[nav2-TIAGo-support](https://github.com/IntelligentRoboticsLabs/nav2-TIAGo-support)**:
+  The integration of the nav2 and turtlebot2 through the ros1_bridge needs one tools to fix some issues.
+  ```
+    rosrun tf_static_resender tf_static_resender
+  ```
+4. **A dummy metacontroller**:
+  With this tool, you can simulate different contingency scenarios.
+  ```
+    ros2 run metacontroller_pilot metacontroller
+  ```
+5. **Demo launcher**:
+  This launcher includes rviz, nav2, amcl, map-server, **[system-modes](https://github.com/micro-ROS/system_modes)**, etc.
+  The **system-modes mode-manager** takes the modes description from params/pilot_modes.yaml.
+  ```
+    ros2 launch pilot_urjc_bringup nav2_turtlebot2_launch.py
+  ```
  
