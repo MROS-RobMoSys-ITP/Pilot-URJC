@@ -44,6 +44,8 @@ def generate_launch_description():
     bt_xml_file = LaunchConfiguration('bt_xml_file')
     autostart = LaunchConfiguration('autostart')
     use_remappings = LaunchConfiguration('use_remappings')
+    cmd_vel_topic = LaunchConfiguration('cmd_vel_topic')
+
 
     stdout_linebuf_envvar = SetEnvironmentVariable(
         'RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED', '1')
@@ -88,6 +90,11 @@ def generate_launch_description():
         'use_remappings', default_value='false',
         description='Arguments to pass to all nodes launched by the file')
 
+    declare_cmd_vel_topic_cmd = DeclareLaunchArgument(
+        'cmd_vel_topic',
+        default_value='cmd_vel',
+        description='Command velocity topic')
+
     # Specify the actions
     bringup_cmd_group = GroupAction([
         PushRosNamespace(
@@ -113,7 +120,8 @@ def generate_launch_description():
                               'bt_xml_file': bt_xml_file,
                               'use_lifecycle_mgr': 'true',
                               'use_remappings': use_remappings,
-                              'map_subscribe_transient_local': 'true'}.items()),
+                              'map_subscribe_transient_local': 'true',
+                              'cmd_vel_topic': cmd_vel_topic}.items()),
 
         Node(
             package='nav2_lifecycle_manager',
@@ -146,6 +154,7 @@ def generate_launch_description():
     ld.add_action(declare_autostart_cmd)
     ld.add_action(declare_bt_xml_cmd)
     ld.add_action(declare_use_remappings_cmd)
+    ld.add_action(declare_cmd_vel_topic_cmd)
 
     # Add the actions to launch all of the navigation nodes
     ld.add_action(bringup_cmd_group)

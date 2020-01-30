@@ -37,6 +37,8 @@ def generate_launch_description():
     use_lifecycle_mgr = LaunchConfiguration('use_lifecycle_mgr')
     use_remappings = LaunchConfiguration('use_remappings')
     map_subscribe_transient_local = LaunchConfiguration('map_subscribe_transient_local')
+    cmd_vel_topic = LaunchConfiguration('cmd_vel_topic')
+
 
     # Map fully qualified names to relative ones so the node's namespace can be prepended.
     # In case of the transforms (tf), currently, there doesn't seem to be a better alternative
@@ -48,7 +50,7 @@ def generate_launch_description():
                   ((namespace, '/tf_static'), '/tf_static'),
                   ('/tf', 'tf'),
                   ('/tf_static', 'tf_static'),
-                  ('cmd_vel', 'cmd_vel_mux')]
+                  ('cmd_vel', cmd_vel_topic)]
 
     # Create our own temporary YAML files that include substitutions
     param_substitutions = {
@@ -102,6 +104,10 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'map_subscribe_transient_local', default_value='false',
             description='Whether to set the map subscriber QoS to transient local'),
+        
+        DeclareLaunchArgument(
+            'cmd_vel_topic', default_value='cmd_vel',
+            description='Command velocity topic'),
 
         Node(
             package='nav2_controller',
