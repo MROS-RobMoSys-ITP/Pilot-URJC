@@ -45,6 +45,7 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
     git clone https://github.com/MROS-RobMoSys-ITP/Pilot-URJC.git
     vcs import < Pilot-URJC/dependencies.repos
     cd ..
+    rosdep install --from-paths src --ignore-src -r -y
     colcon build --symlink-install
   ```  
 ### Real TIAGo robot.
