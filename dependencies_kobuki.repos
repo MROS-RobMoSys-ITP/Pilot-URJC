@@ -1,0 +1,31 @@
+repositories:
+  BehaviorTree.CPP:
+    type: git
+    url: https://github.com/BehaviorTree/BehaviorTree.CPP.git
+    version: master
+  navigation2:
+    type: git
+    url: https://github.com/MROS-RobMoSys-ITP/navigation2.git
+    version: pilot-urjc
+  turtlebot2_demo:
+    type: git
+    url: https://github.com/IntelligentRoboticsLabs/turtlebot2_demo.git
+    version: ros2-eloquent
+  rplidar_ros:
+    type: git
+    url: https://github.com/allenh1/rplidar_ros.git
+    version: ros2
+  kobuki_core:
+    type: git
+    url: https://github.com/kobuki-base/kobuki_core.git
+    version: devel
+  laser_filter/filters:
+    type: git
+    url: https://github.com/swatifulzele/filters.git
+    version: ros2_devel
+  laser_filter/laser_filters:
+    type: git
+    url: https://github.com/IntelligentRoboticsLabs/laser_filters.git
+    version: ros2-eloquent
+
+
