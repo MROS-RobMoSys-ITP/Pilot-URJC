@@ -126,3 +126,36 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
     ros2 launch pilot_urjc_bringup nav2_turtlebot2_launch.py
   ```
  
+### Real Kobuki robot.
+  #### Before start:
+  ```
+    sudo apt-get install ros-eloquente-eigen*
+    cd [ros2_ws]/src
+    git clone https://github.com/MROS-RobMoSys-ITP/Pilot-URJC.git
+    vcs import src < Pilot-URJC/dependencies_kobuki.repos # if you did vcs import of dependencies.repos before, you have to comment Behavior Tree and navigation2 in the dependencies_kobuki.repos file before do this vcs import.
+    cd ..
+    colcon build --symlink-install
+  ```
+
+#### Setup:
+- Add the map of the scenario in the Pilot-URJC/pilot_kobuki/map.
+- Add a little modification in navigation2/nav2_bringup/bringup/launch/nav2_bringup_launch.py:
+```
+    kobuki_dir = get_package_share_directory('pilot_kobuki')
+
+    declare_map_yaml_cmd = DeclareLaunchArgument(
+        'map',
+        default_value=os.path.join(kobuki_dir, 'map', 'map_name.yaml'),
+        description='Full path to map yaml file to load')
+```
+- Set base_frame_id value in navigation2/nav2_bringup/bringup/params/nav2_params.yaml:
+
+```
+    base_frame_id: "base_link"
+```
+
+#### Test the navigation in the real Kobuki robot:
+```
+source [ros2_ws]/install/setup.bash
+ros2 launch pilot_kobuki kobuki2.launch.py
+```
