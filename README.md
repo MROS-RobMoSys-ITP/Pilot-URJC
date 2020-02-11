@@ -129,7 +129,7 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
 ### Real Kobuki robot.
   #### Before start:
   ```
-    sudo apt-get install ros-eloquente-eigen*
+    sudo apt-get install ros-eloquent-eigen*
     cd [ros2_ws]/src
     git clone https://github.com/MROS-RobMoSys-ITP/Pilot-URJC.git
     vcs import src < Pilot-URJC/dependencies_kobuki.repos # if you did vcs import of dependencies.repos before, you have to comment Behavior Tree and navigation2 in the dependencies_kobuki.repos file before do this vcs import.
