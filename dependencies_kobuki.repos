@@ -27,5 +27,11 @@ repositories:
     type: git
     url: https://github.com/IntelligentRoboticsLabs/laser_filters.git
     version: ros2-eloquent
+  ros_astra_camera:
+    type: git
+    url: https://github.com/jginesclavero/ros_astra_camera
+    version: eloquent
+
+
 
 
