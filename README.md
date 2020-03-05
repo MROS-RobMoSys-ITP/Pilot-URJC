@@ -126,3 +126,13 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
     ros2 launch pilot_urjc_bringup nav2_turtlebot2_launch.py
   ```
  
+### TIAGo robot specifications
+In the TIAGO_specifications.pdf of this repository you can find a full description of the TIAGo robot.
+
+### Install ROS Melodic
+
+To install ROS (Melodic version), all the full documentation and steps to do during this proccess are in the next page:
+
+http://wiki.ros.org/melodic/Installation/Ubuntu
+
+
