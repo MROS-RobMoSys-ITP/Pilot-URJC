@@ -149,19 +149,18 @@ def generate_launch_description():
 
     # Start as a normal node is currently not possible.
     # Path to SHM file should be passed as a ROS parameter.
-    #    mode_manager_node = launch_ros.actions.Node(
-    #        package='system_modes',
-    #        node_executable='mode-manager',
-    #        node_name='mode_manager',
-    #        node_namespace='example',
-    #        arguments=[shm_model_path],
-    #        output='screen')
+    mode_manager_node = Node(
+        package='system_modes',
+        node_executable='mode_manager',
+        node_name='mode_manager',
+        arguments=[shm_model_path],
+        output='screen')
     # Hack by @ralph-lange: Launch the node directly as an executable.
 
-    mode_manager_executable = (get_package_prefix('system_modes') + 
-                 '/lib/system_modes/mode-manager')
-    mode_manager_node = ExecuteProcess(
-        cmd=[mode_manager_executable, shm_model_path])
+    #mode_manager_executable = (get_package_prefix('system_modes') + 
+    #             '/lib/system_modes/mode-manager')
+    #mode_manager_node = ExecuteProcess(
+    #    cmd=[mode_manager_executable, shm_model_path])
         
 
     # Create the launch description and populate
