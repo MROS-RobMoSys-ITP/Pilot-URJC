@@ -37,17 +37,57 @@ The modes change next parameters in the components (shown in the figure), with s
 
 ![pilot_overview](resources/pilot-urjc.png)
 
-## Launching pilot-urjc demo
-This pilot has been tested on different platforms. Above we show how to run the demo in each one.
-First of all, we have to download the dependencies packages. We will use **vcs-tool**
+## Build pilot-urjc demo
+
+  We will use **vcs-tool** to get the dependencies and packages, we have to create several ws.
+
+### Navigation2 dependencies
+  
+  Fetch, build and install navigation2 dependencies:
+
+  ```console
+    mkdir -p ~/ros2_nav_dependencies_ws/src
+    cd ~/ros2_nav_dependencies_ws
+    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/blob/mario-tests/nav2_dependencies.repos
+    vcs import src < nav2_dependencies.repos
+    rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
+    colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+
   ```
-    cd [ros2_ws]/src
-    git clone https://github.com/MROS-RobMoSys-ITP/Pilot-URJC.git
-    vcs import < Pilot-URJC/dependencies.repos
-    cd ..
-    rosdep install --from-paths src --ignore-src -r -y
+
+### Navigation2 ([MROS-RobMoSys-ITP](https://github.com/MROS-RobMoSys-ITP/mros_navigation2) fork)
+
+  Fetch, build and install navigation2 stack:
+
+  ```console
+    source ~/ros2_nav_dependencies_ws/install/setup.bash
+    mkdir -p ~/navigation2_ws/src
+    cd ~/navigation2_ws
+    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/blob/mario-tests/nav2_dependencies.repos
+    vcs import src < nav2_dependencies.repos
+    rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
+    colcon build --symlink-install
+  ```
+
+### Turtlebot3
+
+  Turtlebot3 is one of tests platforms. Ignore this if you are not using it.
+  Fetch, build and install turtlebot3 packages:
+
+  ```console
+    source ~/navigation2_ws/install/setup.bash
+    mkdir -p ~/turtlebot3_ws/src
+    cd ~/turtlebot3_ws
+    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/blob/mario-tests/turtlebot3.repos
+    vcs import src < turtlebot3.repos
+    rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
     colcon build --symlink-install
   ```  
+
+## Launching pilot-urjc demo
+
+This pilot has been tested on different platforms. Above we show how to run the demo in each one.
+
 ### Real TIAGo robot.
   #### Before start:
   - Make sure that the navigation, localization and map-server are switched off in the robot before start the demo.
@@ -80,28 +120,41 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
     ros2 launch pilot_urjc_bringup nav2_tiago_launch.py
   ```
   
-### Launching in simulated turtlebot3.
+### Launching in simulated turtlebot3
 
-1. **Launch gazebo sim and nav2 system (gazebo headless mode ON):**
-  ```   
-    ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
-  ```
-2. **A dummy metacontroller**:
-  With this tool, you can simulate different contingency scenarios.
-  ```
-    ros2 run metacontroller_pilot metacontroller
-  ```
+1. **Launch turtlebot3 world in gazebo sim**
 
-3. **[system-modes](https://github.com/micro-ROS/system_modes)**:
-  ```
-    ros2 run system_modes mode-manager [ros2_ws]/src/Pilot-URJC/pilot_urjc_bringup/params/pilot_modes.yaml
-  ```
+    ```console
+      export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/turtlebot3_ws/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/models
+      export TURTLEBOT3_MODEL=${TB3_MODEL}
+      ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+    ```
 
-### Launching in simulated turtlebot2.
+2. **Demo launcher**
+
+    This launcher includes rviz, nav2, amcl, map-server, **[system-modes](https://github.com/micro-ROS/system_modes)**, etc.
+    The **system_modes mode_manager** takes the modes description from `params/pilot_modes.yaml`.
+
+    ```console
+      export TURTLEBOT3_MODEL=${TB3_MODEL}
+      ros2 launch pilot_urjc_bringup nav2_turtlebot3_launch.py
+    ```
+
+3. **A dummy metacontroller**
+
+    With this tool, you can simulate different contingency scenarios.
+
+    ```console
+      ros2 run metacontroller_pilot metacontroller
+    ```
+
+### Launching in simulated turtlebot2
 
 1. **Turtlebot ROS1 Gazebo simulator:**
-  Launch the turtlebot2 simulator and its sensors. If you don't have a launcher to do this, you can find an example [here](https://github.com/IntelligentRoboticsLabs/gb_robots/tree/simulator) 
-  ```   
+
+  Launch the turtlebot2 simulator and its sensors. If you don't have a launcher to do this, you can find an example [here](https://github.com/IntelligentRoboticsLabs/gb_robots/tree/simulator)
+
+  ```console
     ros2 launch gb_robots sim_house.launch
   ```
   
