@@ -63,7 +63,7 @@ The modes change next parameters in the components (shown in the figure), with s
     source ~/ros2_nav_dependencies_ws/install/setup.bash
     mkdir -p ~/navigation2_ws/src
     cd ~/navigation2_ws
-    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/blob/mario-tests/nav2_dependencies.repos
+    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/mario-tests/nav2_dependencies.repos
     vcs import src < nav2_dependencies.repos
     rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
     colcon build --symlink-install
@@ -78,7 +78,7 @@ The modes change next parameters in the components (shown in the figure), with s
     source ~/navigation2_ws/install/setup.bash
     mkdir -p ~/turtlebot3_ws/src
     cd ~/turtlebot3_ws
-    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/blob/mario-tests/turtlebot3.repos
+    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/mario-tests/turtlebot3.repos
     vcs import src < turtlebot3.repos
     rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
     colcon build --symlink-install
