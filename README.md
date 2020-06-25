@@ -48,7 +48,7 @@ The modes change next parameters in the components (shown in the figure), with s
   ```console
     mkdir -p ~/ros2_nav_dependencies_ws/src
     cd ~/ros2_nav_dependencies_ws
-    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/blob/mario-tests/nav2_dependencies.repos
+    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/mario-tests/nav2_dependencies.repos
     vcs import src < nav2_dependencies.repos
     rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
     colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
