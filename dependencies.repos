@@ -1,0 +1,22 @@
+repositories:
+  navigation2:
+    type: git
+    url: https://github.com/MROS-RobMoSys-ITP/navigation2.git
+    version: pilot-urjc
+  
+  Pilot-URJC:
+    type: git
+    url: https://github.com/MROS-RobMoSys-ITP/Pilot-URJC.git
+    version: mario-tests
+
+  BICA:
+    type: git
+    url: https://github.com/IntelligentRoboticsLabs/BICA.git
+    version: behavior_trees
+
+  ros2_planning_system:
+    type: git
+    url: https://github.com/IntelligentRoboticsLabs/ros2_planning_system.git
+    version: master
+
+
