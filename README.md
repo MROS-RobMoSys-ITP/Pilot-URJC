@@ -4,9 +4,9 @@ This repo contains the first pilot prepared by the URJC. It is composed of sever
 
 ### Pilot Behavior
 
-This module contains the components that control the robot's mission during the pilot. We have used BICA components to generate the robot's behavior. 
+This module contains the components that control the robot's mission during the pilot. We have used BICA components to generate the robot's behavior.
 
-A [BICA](https://github.com/IntelligentRoboticsLabs/BICA/tree/ros2) component is a ROS2 lifecycle node that can activate another BICA component by merely declaring it as a dependency. Besides, each BICA component can use behavior trees to implement its behavior, being able to declare the dependencies on each behavior tree leaf. In this way, we can have hierarchical behavior trees. 
+A [BICA](https://github.com/IntelligentRoboticsLabs/BICA/tree/ros2) component is a ROS2 lifecycle node that can activate another BICA component by merely declaring it as a dependency. Besides, each BICA component can use behavior trees to implement its behavior, being able to declare the dependencies on each behavior tree leaf. In this way, we can have hierarchical behavior trees.
 
 In this pilot, the mission controller uses a behavior tree to sequence the phases of the test. In some stages, the robot is made to navigate, and in others, it starts a dialogue. As the dialogs are also composed of several stages, other BICA components have been used to implement it, activated from a leaf of the mission tree's behavior tree.
 
@@ -34,36 +34,24 @@ The modes change next parameters in the components (shown in the figure), with s
 * Controller [max\_vel]: Each mode defines an adequate speed.
 * HRI Controller [hri_mode]: This parameter selects if the communication must be carried out using the tablet, or the audio.
 
-
 ![pilot_overview](resources/pilot-urjc.png)
 
 ## Build pilot-urjc demo
 
-  We will use **vcs-tool** to get the dependencies and packages, we have to create several ws.
+  We will use **vcs-tool** to get the dependencies and packages. We assume that you have a ros2 workspace ([ros2_ws]), if you don't have one, just create it with:
 
-### Navigation2 dependencies
-  
-  Fetch, build and install navigation2 dependencies:
-
-  ```console
-    mkdir -p ~/ros2_nav_dependencies_ws/src
-    cd ~/ros2_nav_dependencies_ws
-    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/mario-tests/nav2_dependencies.repos
-    vcs import src < nav2_dependencies.repos
-    rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
-    colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
-
-  ```
+    ```console
+      source /opt/ros/eloquent/setup.bash
+      mkdir -p [path-to-your-ros2-ws]/src
+    ```
 
 ### Navigation2 ([MROS-RobMoSys-ITP](https://github.com/MROS-RobMoSys-ITP/mros_navigation2) fork)
 
   Fetch, build and install navigation2 stack:
 
   ```console
-    source ~/ros2_nav_dependencies_ws/install/setup.bash
-    mkdir -p ~/navigation2_ws/src
-    cd ~/navigation2_ws
-    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/mario-tests/dependencies.repos
+    cd [ros2_ws]
+    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/master/dependencies.repos
     vcs import src < dependencies.repos
     rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
     colcon build --symlink-install
@@ -75,10 +63,8 @@ The modes change next parameters in the components (shown in the figure), with s
   Fetch, build and install turtlebot3 packages:
 
   ```console
-    source ~/navigation2_ws/install/setup.bash
-    mkdir -p ~/turtlebot3_ws/src
-    cd ~/turtlebot3_ws
-    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/mario-tests/turtlebot3.repos
+    cd [ros2_ws]
+    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/master/turtlebot3.repos
     vcs import src < turtlebot3.repos
     rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
     colcon build --symlink-install
@@ -93,7 +79,7 @@ This pilot has been tested on different platforms. Above we show how to run the 
   - Make sure that the navigation, localization and map-server are switched off in the robot before start the demo.
   - The shell windows that will launch the ros1_bridge and the ros1 components needs a correct [network configuration](http://wiki.ros.org/ROS/NetworkSetup), setting the ROS_IP and ROS_MASTER_URI environment variables.
   - We have used rmw_cyclonedds_cpp as RMW_IMPLEMENTATION for the tests.
-  
+
 1. **![ros1_bridge](https://github.com/ros2/ros1_bridge)**:
   To launch the demo in real TIAGo we have to use the ros1_bridge package, at this moment TIAGo drivers are not migrated to ROS2.
   ```
@@ -107,7 +93,7 @@ This pilot has been tested on different platforms. Above we show how to run the 
   ```
     rosrun cmd_vel_mux cmd_vel_mux_node
   ```
-  
+
 3. **A dummy metacontroller**:
   With this tool, you can simulate different contingency scenarios.
   ```
@@ -119,13 +105,13 @@ This pilot has been tested on different platforms. Above we show how to run the 
   ```
     ros2 launch pilot_urjc_bringup nav2_tiago_launch.py
   ```
-  
+
 ### Launching in simulated turtlebot3
 
 1. **Launch turtlebot3 world in gazebo sim**
 
     ```console
-      export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/turtlebot3_ws/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/models
+      export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:[ros2_ws]/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/models
       export TURTLEBOT3_MODEL=${TB3_MODEL}
       ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
     ```
@@ -157,7 +143,7 @@ This pilot has been tested on different platforms. Above we show how to run the 
   ```console
     ros2 launch gb_robots sim_house.launch
   ```
-  
+
 2. **![ros1_bridge](https://github.com/ros2/ros1_bridge)**:
   ```   
     ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
@@ -178,7 +164,7 @@ This pilot has been tested on different platforms. Above we show how to run the 
   ```
     ros2 launch pilot_urjc_bringup nav2_turtlebot2_launch.py
   ```
- 
+
 ### Real Kobuki robot.
   #### Before start:
   ```
