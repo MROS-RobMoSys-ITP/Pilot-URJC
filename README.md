@@ -40,19 +40,20 @@ The modes change next parameters in the components (shown in the figure), with s
 
   We will use **vcs-tool** to get the dependencies and packages. We assume that you have a ros2 workspace ([ros2_ws]), if you don't have one, just create it with:
 
-    ```console
-      source /opt/ros/eloquent/setup.bash
-      mkdir -p [path-to-your-ros2-ws]/src
-    ```
+  ```console
+    source /opt/ros/eloquent/setup.bash
+    mkdir -p [path-to-your-ros2-ws]/src
+  ```
 
 ### Navigation2 ([MROS-RobMoSys-ITP](https://github.com/MROS-RobMoSys-ITP/mros_navigation2) fork)
 
   Fetch, build and install navigation2 stack:
 
   ```console
-    cd [ros2_ws]
-    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/master/dependencies.repos
-    vcs import src < dependencies.repos
+    cd [ros2_ws]/src
+    git clone https://github.com/MROS-RobMoSys-ITP/Pilot-URJC.git
+    vcs import < Pilot-URJC/dependencies.repos
+    cd ..
     rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
     colcon build --symlink-install
   ```
@@ -63,9 +64,9 @@ The modes change next parameters in the components (shown in the figure), with s
   Fetch, build and install turtlebot3 packages:
 
   ```console
-    cd [ros2_ws]
-    wget https://raw.githubusercontent.com/MROS-RobMoSys-ITP/Pilot-URJC/master/turtlebot3.repos
-    vcs import src < turtlebot3.repos
+    cd [ros2_ws]/src
+    vcs import < Pilot-URJC/turtlebot3.repos
+    cd ..
     rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
     colcon build --symlink-install
   ```  
