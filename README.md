@@ -4,9 +4,9 @@ This repo contains the first pilot prepared by the URJC. It is composed of sever
 
 ### Pilot Behavior
 
-This module contains the components that control the robot's mission during the pilot. We have used BICA components to generate the robot's behavior. 
+This module contains the components that control the robot's mission during the pilot. We have used BICA components to generate the robot's behavior.
 
-A [BICA](https://github.com/IntelligentRoboticsLabs/BICA/tree/ros2) component is a ROS2 lifecycle node that can activate another BICA component by merely declaring it as a dependency. Besides, each BICA component can use behavior trees to implement its behavior, being able to declare the dependencies on each behavior tree leaf. In this way, we can have hierarchical behavior trees. 
+A [BICA](https://github.com/IntelligentRoboticsLabs/BICA/tree/ros2) component is a ROS2 lifecycle node that can activate another BICA component by merely declaring it as a dependency. Besides, each BICA component can use behavior trees to implement its behavior, being able to declare the dependencies on each behavior tree leaf. In this way, we can have hierarchical behavior trees.
 
 In this pilot, the mission controller uses a behavior tree to sequence the phases of the test. In some stages, the robot is made to navigate, and in others, it starts a dialogue. As the dialogs are also composed of several stages, other BICA components have been used to implement it, activated from a leaf of the mission tree's behavior tree.
 
@@ -34,26 +34,53 @@ The modes change next parameters in the components (shown in the figure), with s
 * Controller [max\_vel]: Each mode defines an adequate speed.
 * HRI Controller [hri_mode]: This parameter selects if the communication must be carried out using the tablet, or the audio.
 
-
 ![pilot_overview](resources/pilot-urjc.png)
 
-## Launching pilot-urjc demo
-This pilot has been tested on different platforms. Above we show how to run the demo in each one.
-First of all, we have to download the dependencies packages. We will use **vcs-tool**
+## Build pilot-urjc demo
+
+  We will use **vcs-tool** to get the dependencies and packages. We assume that you have a ros2 workspace ([ros2_ws]), if you don't have one, just create it with:
+
+  ```console
+    source /opt/ros/eloquent/setup.bash
+    mkdir -p [path-to-your-ros2-ws]/src
   ```
+
+### Navigation2 ([MROS-RobMoSys-ITP](https://github.com/MROS-RobMoSys-ITP/mros_navigation2) fork)
+
+  Fetch, build and install navigation2 stack:
+
+  ```console
     cd [ros2_ws]/src
     git clone https://github.com/MROS-RobMoSys-ITP/Pilot-URJC.git
     vcs import < Pilot-URJC/dependencies.repos
     cd ..
-    rosdep install --from-paths src --ignore-src -r -y
+    rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
+    colcon build --symlink-install
+  ```
+
+### Turtlebot3
+
+  Turtlebot3 is one of tests platforms. Ignore this if you are not using it.
+  Fetch, build and install turtlebot3 packages:
+
+  ```console
+    cd [ros2_ws]/src
+    vcs import < Pilot-URJC/turtlebot3.repos
+    cd ..
+    rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
     colcon build --symlink-install
   ```  
+
+## Launching pilot-urjc demo
+
+This pilot has been tested on different platforms. Above we show how to run the demo in each one.
+
 ### Real TIAGo robot.
   #### Before start:
   - Make sure that the navigation, localization and map-server are switched off in the robot before start the demo.
   - The shell windows that will launch the ros1_bridge and the ros1 components needs a correct [network configuration](http://wiki.ros.org/ROS/NetworkSetup), setting the ROS_IP and ROS_MASTER_URI environment variables.
   - We have used rmw_cyclonedds_cpp as RMW_IMPLEMENTATION for the tests.
-  
+
 1. **![ros1_bridge](https://github.com/ros2/ros1_bridge)**:
   To launch the demo in real TIAGo we have to use the ros1_bridge package, at this moment TIAGo drivers are not migrated to ROS2.
   ```
@@ -67,7 +94,7 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
   ```
     rosrun cmd_vel_mux cmd_vel_mux_node
   ```
-  
+
 3. **A dummy metacontroller**:
   With this tool, you can simulate different contingency scenarios.
   ```
@@ -79,32 +106,45 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
   ```
     ros2 launch pilot_urjc_bringup nav2_tiago_launch.py
   ```
-  
-### Launching in simulated turtlebot3.
 
-1. **Launch gazebo sim and nav2 system (gazebo headless mode ON):**
-  ```   
-    ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
-  ```
-2. **A dummy metacontroller**:
-  With this tool, you can simulate different contingency scenarios.
-  ```
-    ros2 run metacontroller_pilot metacontroller
-  ```
+### Launching in simulated turtlebot3
 
-3. **[system-modes](https://github.com/micro-ROS/system_modes)**:
-  ```
-    ros2 run system_modes mode-manager [ros2_ws]/src/Pilot-URJC/pilot_urjc_bringup/params/pilot_modes.yaml
-  ```
+1. **Launch turtlebot3 world in gazebo sim**
 
-### Launching in simulated turtlebot2.
+    ```console
+      export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:[ros2_ws]/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/models
+      export TURTLEBOT3_MODEL=${TB3_MODEL}
+      ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+    ```
+
+2. **Demo launcher**
+
+    This launcher includes rviz, nav2, amcl, map-server, **[system-modes](https://github.com/micro-ROS/system_modes)**, etc.
+    The **system_modes mode_manager** takes the modes description from `params/pilot_modes.yaml`.
+
+    ```console
+      export TURTLEBOT3_MODEL=${TB3_MODEL}
+      ros2 launch pilot_urjc_bringup nav2_turtlebot3_launch.py
+    ```
+
+3. **A dummy metacontroller**
+
+    With this tool, you can simulate different contingency scenarios.
+
+    ```console
+      ros2 run metacontroller_pilot metacontroller
+    ```
+
+### Launching in simulated turtlebot2
 
 1. **Turtlebot ROS1 Gazebo simulator:**
-  Launch the turtlebot2 simulator and its sensors. If you don't have a launcher to do this, you can find an example [here](https://github.com/IntelligentRoboticsLabs/gb_robots/tree/simulator) 
-  ```   
+
+  Launch the turtlebot2 simulator and its sensors. If you don't have a launcher to do this, you can find an example [here](https://github.com/IntelligentRoboticsLabs/gb_robots/tree/simulator)
+
+  ```console
     ros2 launch gb_robots sim_house.launch
   ```
-  
+
 2. **![ros1_bridge](https://github.com/ros2/ros1_bridge)**:
   ```   
     ros2 launch nav2_bringup nav2_tb3_system_modes_sim_launch.py
@@ -125,7 +165,7 @@ First of all, we have to download the dependencies packages. We will use **vcs-t
   ```
     ros2 launch pilot_urjc_bringup nav2_turtlebot2_launch.py
   ```
- 
+
 ### Real Kobuki robot.
   #### Before start:
   ```
