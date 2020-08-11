@@ -1,36 +1,20 @@
 cmake_minimum_required(VERSION 3.5)
 project(pilot_behavior)
 
-# Default to C99
-if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 99)
-endif()
-
-# Default to C++14
-if(NOT CMAKE_CXX_STANDARD)
-  
-endif()
+set(CMAKE_BUILD_TYPE DEBUG)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 # find dependencies
-find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-find_package(behaviortree_cpp_v3 REQUIRED)
-find_package(bica REQUIRED)
-find_package(bica_graph REQUIRED)
+find_package(ros2_knowledge_graph REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(nav2_msgs REQUIRED)
-find_package(bica_behavior_tree REQUIRED)
-find_package(rclcpp_action REQUIRED)
-find_package(bica_graph REQUIRED)
-
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(behaviortree_cpp_v3 REQUIRED)
 
 include_directories(
   include
@@ -38,41 +22,69 @@ include_directories(
 
 set(dependencies
   rclcpp
+  rclcpp_action
   rclcpp_lifecycle
-  behaviortree_cpp_v3
-  bica
-  bica_graph
+  ros2_knowledge_graph
   ament_index_cpp
   nav2_msgs
-  bica_behavior_tree
-  rclcpp_action
-  bica_graph
+  behaviortree_cpp_v3
 )
+
+add_library(pilot_behavior_get_order_bt_node SHARED
+  src/behavior_tree_nodes/GetOrder.cpp
+)
+list(APPEND plugin_libs pilot_behavior_get_order_bt_node)
+
+add_library(pilot_behavior_navigate_to_barman_bt_node SHARED
+  src/behavior_tree_nodes/NavigateToBarman.cpp
+)
+list(APPEND plugin_libs pilot_behavior_navigate_to_barman_bt_node)
+
+add_library(pilot_behavior_interact_with_barman_bt_node SHARED
+  src/behavior_tree_nodes/InteractWithBarman.cpp
+)
+list(APPEND plugin_libs pilot_behavior_interact_with_barman_bt_node)
+
+add_library(pilot_behavior_navigate_to_client_bt_node SHARED
+  src/behavior_tree_nodes/NavigateToClient.cpp
+)
+list(APPEND plugin_libs pilot_behavior_navigate_to_client_bt_node)
+
+add_library(pilot_behavior_deliver_order_bt_node SHARED
+  src/behavior_tree_nodes/DeliverOrder.cpp
+)
+list(APPEND plugin_libs pilot_behavior_deliver_order_bt_node)
+
+add_library(pilot_behavior_check_order_bt_node SHARED
+  src/behavior_tree_nodes/CheckOrder.cpp
+)
+list(APPEND plugin_libs pilot_behavior_check_order_bt_node)
+
+foreach(bt_plugin ${plugin_libs})
+  ament_target_dependencies(${bt_plugin} ${dependencies})
+  target_compile_definitions(${bt_plugin} PRIVATE BT_PLUGIN_EXPORT)
+endforeach()
+
+add_executable(pilot_behavior src/pilot_behavior.cpp)
+ament_target_dependencies(pilot_behavior ${dependencies})
+target_link_libraries(pilot_behavior)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # uncomment the line when a copyright and license is not present in all source files
-  #set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_gtest REQUIRED)
+  add_subdirectory(test)
 endif()
-
-#add_executable(bt_tiago src/bt_tiago.cpp)
-#ament_target_dependencies(bt_tiago ${dependencies})
-
-add_executable(bt_bica src/bt_bica.cpp)
-ament_target_dependencies(bt_bica ${dependencies})
 
 install(DIRECTORY behavior_trees DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
-  #bt_tiago
-  bt_bica
-  DESTINATION lib/${PROJECT_NAME}
+  pilot_behavior
+  ${plugin_libs}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 ament_package()

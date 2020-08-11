@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(pilot_urjc_bringup)
 
-set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE DEBUG)
 
 # find dependencies
