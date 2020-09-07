@@ -41,11 +41,11 @@ The modes change next parameters in the components (shown in the figure), with s
   We will use **vcs-tool** to get the dependencies and packages. We assume that you have a ros2 workspace ([ros2_ws]), if you don't have one, just create it with:
 
   ```console
-    source /opt/ros/eloquent/setup.bash
+    source /opt/ros/foxy/setup.bash
     mkdir -p [path-to-your-ros2-ws]/src
   ```
 
-### Navigation2 ([MROS-RobMoSys-ITP](https://github.com/MROS-RobMoSys-ITP/mros_navigation2) fork)
+### PilotURJC and its dependencies
 
   Fetch, build and install navigation2 stack:
 
@@ -54,8 +54,12 @@ The modes change next parameters in the components (shown in the figure), with s
     git clone https://github.com/MROS-RobMoSys-ITP/Pilot-URJC.git
     vcs import < Pilot-URJC/dependencies.repos
     cd ..
-    rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
+    rosdep install -y -r -q --from-paths src --ignore-src --rosdistro foxy
     colcon build --symlink-install
+    
+    NOTE: if the compilation fails because of it could not find some packages run again 
+      rosdep install -y -r -q --from-paths src --ignore-src --rosdistro foxy
+    
   ```
 
 ### Turtlebot3
@@ -67,7 +71,7 @@ The modes change next parameters in the components (shown in the figure), with s
     cd [ros2_ws]/src
     vcs import < Pilot-URJC/turtlebot3.repos
     cd ..
-    rosdep install -y -r -q --from-paths src --ignore-src --rosdistro eloquent
+    rosdep install -y -r -q --from-paths src --ignore-src --rosdistro foxy
     colcon build --symlink-install
   ```  
 
@@ -114,7 +118,7 @@ This pilot has been tested on different platforms. Above we show how to run the 
     ```console
       export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:[ros2_ws]/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/models
       export TURTLEBOT3_MODEL=${TB3_MODEL}
-      ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+      ros2 launch pilot_urjc_bringup tb3_sim_launch.py
     ```
 
 2. **Demo launcher**
