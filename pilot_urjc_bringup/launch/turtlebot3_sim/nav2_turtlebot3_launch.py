@@ -34,7 +34,6 @@ def generate_launch_description():
     pilot_dir = get_package_share_directory('pilot_urjc_bringup')
     pilot_launch_dir = os.path.join(pilot_dir, 'launch')
 
-    
     # Create the launch configuration variables
     namespace = LaunchConfiguration('namespace')
     use_namespace = LaunchConfiguration('use_namespace')
@@ -124,25 +123,16 @@ def generate_launch_description():
                           'autostart': autostart,
                           'cmd_vel_topic': cmd_vel_topic}.items())
 
-
     shm_model_path = (get_package_share_directory('pilot_urjc_bringup') +
-                '/params/pilot_modes.yaml')
+        '/params/pilot_modes.yaml')
 
     # Start as a normal node is currently not possible.
     # Path to SHM file should be passed as a ROS parameter.
     mode_manager_node = Node(
         package='system_modes',
         executable='mode_manager',
-        name='mode_manager',
-        arguments=[shm_model_path],
+        parameters=[{'modelfile': shm_model_path}],
         output='screen')
-    # Hack by @ralph-lange: Launch the node directly as an executable.
-
-    #mode_manager_executable = (get_package_prefix('system_modes') + 
-    #             '/lib/system_modes/mode-manager')
-    #mode_manager_node = ExecuteProcess(
-    #    cmd=[mode_manager_executable, shm_model_path])
-        
 
     # Create the launch description and populate
     ld = LaunchDescription()
@@ -167,7 +157,7 @@ def generate_launch_description():
     ld.add_action(bringup_cmd)
 
     # Add system modes manager
-    #ld.add_action(mode_manager_node)
+    ld.add_action(mode_manager_node)
 
 
     return ld
