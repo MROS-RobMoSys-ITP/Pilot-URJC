@@ -13,15 +13,16 @@
 # limitations under the License.
 
 import os
-
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, SetEnvironmentVariable
+from launch.actions import (DeclareLaunchArgument, ExecuteProcess, 
+                            IncludeLaunchDescription, SetEnvironmentVariable)
 from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch_ros.actions import Node
 
-from nav2_common.launch import Node
 from nav2_common.launch import RewrittenYaml
 
 
@@ -35,7 +36,6 @@ def generate_launch_description():
     params_file = LaunchConfiguration('params_file')
     bt_xml_file = LaunchConfiguration('bt_xml_file')
     use_lifecycle_mgr = LaunchConfiguration('use_lifecycle_mgr')
-    use_remappings = LaunchConfiguration('use_remappings')
     map_subscribe_transient_local = LaunchConfiguration('map_subscribe_transient_local')
     cmd_vel_topic = LaunchConfiguration('cmd_vel_topic')
 
@@ -55,7 +55,7 @@ def generate_launch_description():
     # Create our own temporary YAML files that include substitutions
     param_substitutions = {
         'use_sim_time': use_sim_time,
-        'bt_xml_filename': bt_xml_file,
+        'default_bt_xml_filename': bt_xml_file,
         'autostart': autostart,
         'map_subscribe_transient_local': map_subscribe_transient_local}
 
@@ -98,10 +98,6 @@ def generate_launch_description():
             description='Whether to launch the lifecycle manager'),
 
         DeclareLaunchArgument(
-            'use_remappings', default_value='true',
-            description='Arguments to pass to all nodes launched by the file'),
-
-        DeclareLaunchArgument(
             'map_subscribe_transient_local', default_value='false',
             description='Whether to set the map subscriber QoS to transient local'),
         
@@ -111,53 +107,48 @@ def generate_launch_description():
 
         Node(
             package='nav2_controller',
-            node_executable='controller_server',
+            executable='controller_server',
             output='screen',
             parameters=[configured_params],
-            use_remappings=IfCondition(use_remappings),
             remappings=remappings),
 
         Node(
             package='nav2_planner',
-            node_executable='planner_server',
-            node_name='planner_server',
+            executable='planner_server',
+            name='planner_server',
             output='screen',
             parameters=[configured_params],
-            use_remappings=IfCondition(use_remappings),
             remappings=remappings),
 
         Node(
             package='nav2_recoveries',
-            node_executable='recoveries_server',
-            node_name='recoveries_server',
+            executable='recoveries_server',
+            name='recoveries_server',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time}],
-            use_remappings=IfCondition(use_remappings),
             remappings=remappings),
 
         Node(
-            package='nav2_bt_modes_navigator',
-            node_executable='bt_modes_navigator',
-            node_name='bt_navigator',
+            package='nav2_bt_navigator',
+            executable='bt_navigator',
+            name='bt_navigator',
             output='screen',
             parameters=[configured_params],
-            use_remappings=IfCondition(use_remappings),
             remappings=remappings),
 
         Node(
             package='nav2_waypoint_follower',
-            node_executable='waypoint_follower',
-            node_name='waypoint_follower',
+            executable='waypoint_follower',
+            name='waypoint_follower',
             output='screen',
             parameters=[configured_params],
-            use_remappings=IfCondition(use_remappings),
             remappings=remappings),
 
         Node(
             condition=IfCondition(use_lifecycle_mgr),
             package='nav2_lifecycle_manager',
-            node_executable='lifecycle_manager',
-            node_name='lifecycle_manager_navigation',
+            executable='lifecycle_manager',
+            name='lifecycle_manager_navigation',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time},
                         {'autostart': autostart},

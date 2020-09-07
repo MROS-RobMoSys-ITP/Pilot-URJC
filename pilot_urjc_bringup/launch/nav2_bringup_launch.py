@@ -17,14 +17,12 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import (DeclareLaunchArgument, GroupAction,
+from launch.actions import (DeclareLaunchArgument, ExecuteProcess, GroupAction, 
                             IncludeLaunchDescription, SetEnvironmentVariable)
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import PushRosNamespace
-
-from nav2_common.launch import Node
+from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch_ros.actions import Node, PushRosNamespace
 
 
 def generate_launch_description():
@@ -43,7 +41,6 @@ def generate_launch_description():
     params_file = LaunchConfiguration('params_file')
     bt_xml_file = LaunchConfiguration('bt_xml_file')
     autostart = LaunchConfiguration('autostart')
-    use_remappings = LaunchConfiguration('use_remappings')
     cmd_vel_topic = LaunchConfiguration('cmd_vel_topic')
 
 
@@ -86,10 +83,6 @@ def generate_launch_description():
         'autostart', default_value='true',
         description='Automatically startup the nav2 stack')
 
-    declare_use_remappings_cmd = DeclareLaunchArgument(
-        'use_remappings', default_value='false',
-        description='Arguments to pass to all nodes launched by the file')
-
     declare_cmd_vel_topic_cmd = DeclareLaunchArgument(
         'cmd_vel_topic',
         default_value='cmd_vel',
@@ -102,14 +95,13 @@ def generate_launch_description():
             namespace=namespace),
 
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(os.path.join(launch_dir, 'nav2_localization_launch.py')),
+            PythonLaunchDescriptionSource(os.path.join(launch_dir, 'localization_launch.py')),
             launch_arguments={'namespace': namespace,
                               'map': map_yaml_file,
                               'use_sim_time': use_sim_time,
                               'autostart': autostart,
                               'params_file': params_file,
-                              'use_lifecycle_mgr': 'true',
-                              'use_remappings': use_remappings}.items()),
+                              'use_lifecycle_mgr': 'true'}.items()),
 
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(pilot_launch_dir, 'nav2_navigation_launch.py')),
@@ -119,14 +111,13 @@ def generate_launch_description():
                               'params_file': params_file,
                               'bt_xml_file': bt_xml_file,
                               'use_lifecycle_mgr': 'true',
-                              'use_remappings': use_remappings,
                               'map_subscribe_transient_local': 'true',
                               'cmd_vel_topic': cmd_vel_topic}.items()),
 
         Node(
             package='nav2_lifecycle_manager',
-            node_executable='lifecycle_manager',
-            node_name='lifecycle_manager',
+            executable='lifecycle_manager',
+            name='lifecycle_manager',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time},
                         {'autostart': autostart},
@@ -153,7 +144,6 @@ def generate_launch_description():
     ld.add_action(declare_params_file_cmd)
     ld.add_action(declare_autostart_cmd)
     ld.add_action(declare_bt_xml_cmd)
-    ld.add_action(declare_use_remappings_cmd)
     ld.add_action(declare_cmd_vel_topic_cmd)
 
     # Add the actions to launch all of the navigation nodes

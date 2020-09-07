@@ -19,20 +19,18 @@ import os
 from ament_index_python.packages import get_package_share_directory, get_package_prefix
 
 from launch import LaunchDescription
-from launch.actions import (DeclareLaunchArgument, EmitEvent, ExecuteProcess,
-                            IncludeLaunchDescription, RegisterEventHandler)
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription
 from launch.conditions import IfCondition
-from launch.event_handlers import OnProcessExit
-from launch.events import Shutdown
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
-
-from nav2_common.launch import Node
+from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
     # Get the launch directory
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
+    nav2_launch_dir = os.path.join(nav2_bringup_dir, 'launch')
+
     pilot_dir = get_package_share_directory('pilot_urjc_bringup')
     pilot_launch_dir = os.path.join(pilot_dir, 'launch')
 
@@ -45,7 +43,6 @@ def generate_launch_description():
     params_file = LaunchConfiguration('params_file')
     bt_xml_file = LaunchConfiguration('bt_xml_file')
     autostart = LaunchConfiguration('autostart')
-    use_remappings = LaunchConfiguration('use_remappings')
     cmd_vel_topic = LaunchConfiguration('cmd_vel_topic')
 
     # Launch configuration variables specific to simulation
@@ -86,17 +83,13 @@ def generate_launch_description():
     declare_bt_xml_cmd = DeclareLaunchArgument(
         'bt_xml_file',
         default_value=os.path.join(
-            get_package_share_directory('nav2_bt_modes_navigator'),
+            get_package_share_directory('nav2_bt_navigator'),
             'behavior_trees', 'navigate_w_replanning_and_recovery.xml'),
         description='Full path to the behavior tree xml file to use')
 
     declare_autostart_cmd = DeclareLaunchArgument(
         'autostart', default_value='true',
         description='Automatically startup the nav2 stack')
-
-    declare_use_remappings_cmd = DeclareLaunchArgument(
-        'use_remappings', default_value='true',
-        description='Arguments to pass to all nodes launched by the file')
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
         'rviz_config_file',
@@ -113,23 +106,12 @@ def generate_launch_description():
         default_value='/cmd_vel',
         description='Command velocity topic')
 
-    start_rviz_cmd = Node(
+    rviz_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(nav2_launch_dir, 'rviz_launch.py')),
         condition=IfCondition(use_rviz),
-        package='rviz2',
-        node_executable='rviz2',
-        arguments=['-d', rviz_config_file],
-        output='log',
-        use_remappings=IfCondition(use_remappings),
-        remappings=[('/tf', 'tf'),
-                    ('/tf_static', 'tf_static'),
-                    ('goal_pose', 'goal_pose'),
-                    ('/clicked_point', 'clicked_point'),
-                    ('/initialpose', 'initialpose')])
-
-    exit_event_handler = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=start_rviz_cmd,
-            on_exit=EmitEvent(event=Shutdown(reason='rviz exited'))))
+        launch_arguments={'namespace': '',
+                          'use_namespace': 'False',
+                          'rviz_config': rviz_config_file}.items())
 
     bringup_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(pilot_launch_dir, 'nav2_bringup_launch.py')),
@@ -140,7 +122,6 @@ def generate_launch_description():
                           'params_file': params_file,
                           'bt_xml_file': bt_xml_file,
                           'autostart': autostart,
-                          'use_remappings': use_remappings,
                           'cmd_vel_topic': cmd_vel_topic}.items())
 
 
@@ -151,8 +132,8 @@ def generate_launch_description():
     # Path to SHM file should be passed as a ROS parameter.
     mode_manager_node = Node(
         package='system_modes',
-        node_executable='mode_manager',
-        node_name='mode_manager',
+        executable='mode_manager',
+        name='mode_manager',
         arguments=[shm_model_path],
         output='screen')
     # Hack by @ralph-lange: Launch the node directly as an executable.
@@ -174,23 +155,19 @@ def generate_launch_description():
     ld.add_action(declare_params_file_cmd)
     ld.add_action(declare_bt_xml_cmd)
     ld.add_action(declare_autostart_cmd)
-    ld.add_action(declare_use_remappings_cmd)
     ld.add_action(declare_cmd_vel_topic_cmd)
 
     ld.add_action(declare_rviz_config_file_cmd)
     ld.add_action(declare_use_rviz_cmd)
 
     # Add any conditioned actions
-    ld.add_action(start_rviz_cmd)
-
-    # Add other nodes and processes we need
-    ld.add_action(exit_event_handler)
+    ld.add_action(rviz_cmd)
 
     # Add the actions to launch all of the navigation nodes
     ld.add_action(bringup_cmd)
 
     # Add system modes manager
-    ld.add_action(mode_manager_node)
+    #ld.add_action(mode_manager_node)
 
 
     return ld
