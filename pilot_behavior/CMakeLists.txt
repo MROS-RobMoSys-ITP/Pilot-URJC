@@ -80,11 +80,15 @@ install(DIRECTORY behavior_trees DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
-  pilot_behavior
   ${plugin_libs}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
+)
+
+install(TARGETS
+  pilot_behavior
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()

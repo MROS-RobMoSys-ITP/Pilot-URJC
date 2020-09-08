@@ -17,10 +17,10 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    bt_bica_cmd = Node(
+    pilot_behavior_cmd = Node(
         package='pilot_behavior',
-        node_executable='bt_bica',
-        node_name='bt_bica',
+        node_executable='pilot_behavior',
+        node_name='pilot_behavior',
         output='screen',
         parameters=[])
 
@@ -33,7 +33,7 @@ def generate_launch_description():
 
     ld = LaunchDescription()
 
-    ld.add_action(bt_bica_cmd)
+    ld.add_action(pilot_behavior_cmd)
     ld.add_action(rqt_bica_graph_cmd)
 
     return ld
