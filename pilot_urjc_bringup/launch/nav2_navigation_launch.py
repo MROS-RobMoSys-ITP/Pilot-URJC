@@ -35,7 +35,6 @@ def generate_launch_description():
     autostart = LaunchConfiguration('autostart')
     params_file = LaunchConfiguration('params_file')
     bt_xml_file = LaunchConfiguration('bt_xml_file')
-    use_lifecycle_mgr = LaunchConfiguration('use_lifecycle_mgr')
     map_subscribe_transient_local = LaunchConfiguration('map_subscribe_transient_local')
     cmd_vel_topic = LaunchConfiguration('cmd_vel_topic')
 
@@ -46,9 +45,7 @@ def generate_launch_description():
     # https://github.com/ros/robot_state_publisher/pull/30
     # TODO(orduno) Substitute with `PushNodeRemapping`
     #              https://github.com/ros2/launch_ros/issues/56
-    remappings = [((namespace, '/tf'), '/tf'),
-                  ((namespace, '/tf_static'), '/tf_static'),
-                  ('/tf', 'tf'),
+    remappings = [('/tf', 'tf'),
                   ('/tf_static', 'tf_static'),
                   ('cmd_vel', cmd_vel_topic)]
 
@@ -58,6 +55,12 @@ def generate_launch_description():
         'default_bt_xml_filename': bt_xml_file,
         'autostart': autostart,
         'map_subscribe_transient_local': map_subscribe_transient_local}
+
+    lifecycle_nodes = ['controller_server',
+                       'planner_server',
+                       'recoveries_server',
+                       'bt_navigator',
+                       'waypoint_follower']
 
     configured_params = RewrittenYaml(
             source_file=params_file,
@@ -92,10 +95,6 @@ def generate_launch_description():
                 get_package_share_directory('nav2_bt_navigator'),
                 'behavior_trees', 'navigate_w_replanning_and_recovery.xml'),
             description='Full path to the behavior tree xml file to use'),
-
-        DeclareLaunchArgument(
-            'use_lifecycle_mgr', default_value='true',
-            description='Whether to launch the lifecycle manager'),
 
         DeclareLaunchArgument(
             'map_subscribe_transient_local', default_value='false',
@@ -145,17 +144,12 @@ def generate_launch_description():
             remappings=remappings),
 
         Node(
-            condition=IfCondition(use_lifecycle_mgr),
             package='nav2_lifecycle_manager',
             executable='lifecycle_manager',
             name='lifecycle_manager_navigation',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time},
                         {'autostart': autostart},
-                        {'node_names': ['controller_server',
-                                        'planner_server',
-                                        'recoveries_server',
-                                        'bt_navigator',
-                                        'waypoint_follower']}]),
+                        {'node_names': lifecycle_nodes}]),
 
     ])
