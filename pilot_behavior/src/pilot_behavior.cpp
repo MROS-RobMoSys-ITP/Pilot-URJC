@@ -29,6 +29,7 @@
 #include "behaviortree_cpp_v3/blackboard.h"
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
+#include "ros2_knowledge_graph/GraphNode.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -50,7 +51,10 @@ int main(int argc, char ** argv)
 
   auto blackboard = BT::Blackboard::create();
   auto node = rclcpp::Node::make_shared("pilot_node");
+  auto graph = std::make_shared<ros2_knowledge_graph::GraphNode>("pilot_graph");
+  graph->start();
   blackboard->set("node", node);
+  blackboard->set("pilot_graph", graph);
 
   BT::Tree tree = factory.createTreeFromFile(xml_file, blackboard);
 

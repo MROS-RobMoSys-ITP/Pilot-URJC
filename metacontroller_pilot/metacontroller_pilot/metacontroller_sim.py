@@ -56,7 +56,6 @@ class Metacontroller(Node):
         while not cli.wait_for_service(timeout_sec=1.0):
             print('service not available, waiting again...')
         req = ChangeMode.Request()
-        req.node_name = node_name
         req.mode_name = mode_name
 
         future = cli.call_async(req)
@@ -80,48 +79,44 @@ def main(args=None):
     print (" 6) Network reset")
     print (" 7) Robot located")
     print (" 8) Obstructed solved")
+    print (" 9) Laser Error")
     print ("------------------------------")
 
     option = input()
 
     if option == "1":
         print ("Battery low.") 
-        node_name = 'pilot'
         mode_name = 'LOW_BATTERY'
     elif option == "2":
         print ("Internet lost. (Dialog down)") 
-        node_name = 'pilot'
         mode_name = 'DIALOG'  # doesn't exist  
     elif option == "3":
         print ("Robot lost.") 
-        node_name = 'pilot'
         mode_name = 'LOST'
     elif option == "4":
         print ("Obstacle.") 
-        node_name = 'pilot'
         mode_name = 'OBSTRUCTED'
     elif option == "5":
         print ("Charge completed.")
-        node_name = 'pilot'
         mode_name = 'NORMAL'
     elif option == "6":
         print ("Internet reset.")
-        node_name = 'pilot'
         mode_name = 'NORMAL'
     elif option == "7":
         print ("Robot located.")
-        node_name = 'pilot'
         mode_name = 'NORMAL'
     elif option == "8":
         print ("Obstacle deleted")
-        node_name = 'pilot'
         mode_name = 'NORMAL'
+    elif option == "9":
+        print ("Laser Error")
+        mode_name = 'LASER_ERROR'
     else:
         print("Invalid option.")
         sys.exit()
 
     rclpy.init(args=args)
-
+    node_name = "pilot"
     node = Metacontroller(node_name, mode_name)
 
     try:
