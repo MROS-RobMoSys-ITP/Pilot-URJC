@@ -47,7 +47,8 @@ def generate_launch_description():
     #              https://github.com/ros2/launch_ros/issues/56
     remappings = [('/tf', 'tf'),
                   ('/tf_static', 'tf_static'),
-                  ('cmd_vel', cmd_vel_topic)]
+                  ('cmd_vel', cmd_vel_topic),
+                  ('scan', 'mros_scan')]
 
     # Create our own temporary YAML files that include substitutions
     param_substitutions = {
@@ -103,6 +104,11 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'cmd_vel_topic', default_value='cmd_vel',
             description='Command velocity topic'),
+        
+        Node(
+            package='laser_resender',
+            executable='laser_resender_node',
+            output='screen'),
 
         Node(
             package='nav2_controller',
