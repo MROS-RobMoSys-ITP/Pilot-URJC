@@ -26,9 +26,9 @@ InteractWithBarman::InteractWithBarman(
 : BT::ActionNodeBase(xml_tag_name, conf)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
-  graph_ = std::make_shared<ros2_knowledge_graph::GraphNode>(xml_tag_name + node_->get_name());
-
-  graph_->start();
+  //graph_ = std::make_shared<ros2_knowledge_graph::GraphNode>(xml_tag_name + node_->get_name());
+  //graph_->start();
+  graph_ = config().blackboard->get<std::shared_ptr<ros2_knowledge_graph::GraphNode>>("pilot_graph");
 }
 
 BT::NodeStatus
@@ -36,6 +36,12 @@ InteractWithBarman::tick()
 {
   // TODO(fmrico): Decir la comanda al barman
   std::string text_to_say = "The table_1 wants: ";
+  
+  if (graph_->get_num_nodes() == 0)
+  {
+    RCLCPP_WARN(node_->get_logger(), "0 nodes received");
+    return BT::NodeStatus::RUNNING;
+  }
 
   RCLCPP_INFO(
     node_->get_logger(), "Nodes table_1 [%d]", graph_->get_node_names_by_id(

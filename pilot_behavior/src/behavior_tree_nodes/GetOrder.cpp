@@ -26,9 +26,9 @@ GetOrder::GetOrder(
 : BT::ActionNodeBase(xml_tag_name, conf)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
-  graph_ = std::make_shared<ros2_knowledge_graph::GraphNode>(xml_tag_name + node_->get_name());
-
-  graph_->start();
+  //graph_ = std::make_shared<ros2_knowledge_graph::GraphNode>(xml_tag_name + node_->get_name());
+  //graph_->start();
+  graph_ = config().blackboard->get<std::shared_ptr<ros2_knowledge_graph::GraphNode>>("pilot_graph");
 }
 
 BT::NodeStatus

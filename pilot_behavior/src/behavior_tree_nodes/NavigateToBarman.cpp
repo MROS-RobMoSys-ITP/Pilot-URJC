@@ -33,8 +33,8 @@ NavigateToBarman::on_tick()
 {
   geometry_msgs::msg::PoseStamped goal;
 
-  goal.pose.position.x = 0.636;
-  goal.pose.position.y = 0.545;
+  goal.pose.position.x = -0.5;
+  goal.pose.position.y = -0.5;
   goal.header.frame_id = "map";
 
   goal_.pose = goal;
