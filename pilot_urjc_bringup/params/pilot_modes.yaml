@@ -6,13 +6,19 @@ pilot:
     parts:
       controller_server
       bt_navigator
+      pointcloud_to_laser
     modes:
       __DEFAULT__:
         controller_server: active
         bt_navigator: active
+        pointcloud_to_laser: inactive
       MODERATE:
         controller_server: active.SLOW
         bt_navigator: active.ROUNDROBIN
+      LASER_ERROR:
+        pointcloud_to_laser: active
+        controller_server: active.LASER_ERROR
+        amcl: active.LASER_ERROR
       PERFORMANCE:
         controller_server: active.FAST
         bt_navigator: active.SIMPLE
@@ -27,6 +33,14 @@ pilot:
       NORMAL:
         controller_server: active.NORMAL
         bt_navigator: active.NORMAL
+
+pointcloud_to_laser:
+  ros__parameters:
+    type: node
+    modes:
+      __DEFAULT__:
+        ros__parameters:
+          pointcloud_to_laser_test: "0"
 
 bt_navigator:
   ros__parameters:
@@ -60,31 +74,42 @@ controller_server:
     modes:
       __DEFAULT__:
         ros__parameters:
-          max_vel_x: 0.26
-          max_vel_y: 0.0
-          max_vel_theta: 1.0
+          FollowPath.max_vel_x: 0.26
+          FollowPath.max_vel_theta: 1.0
+          FollowPath.transform_tolerance: 0.2
       SLOW:
         ros__parameters:
-          max_vel_x: 0.2
-          max_vel_y: 0.0
-          max_vel_theta: 0.6
+          FollowPath.max_vel_x: 0.2
+          FollowPath.max_vel_theta: 0.6
       FAST:
         ros__parameters:
-          max_vel_x: 0.35
-          max_vel_y: 0.0
-          max_vel_theta: 1.3
+          FollowPath.max_vel_x: 0.35
+          FollowPath.max_vel_theta: 1.3
       LOW_BATTERY: 
         ros__parameters:
-          max_vel_x: 0.2
-          max_vel_y: 0.0
-          max_vel_theta: 0.6
+          FollowPath.max_vel_x: 0.2
+          FollowPath.max_vel_theta: 0.6
+      LASER_ERROR: 
+        ros__parameters:
+          FollowPath.max_vel_x: 0.1
+          FollowPath.max_vel_theta: 0.4
+          FollowPath.transform_tolerance: 2.5
       LOST: 
         ros__parameters:
-          max_vel_x: 0.0
-          max_vel_y: 0.0
-          max_vel_theta: 0.0
+          FollowPath.max_vel_x: 0.0
+          FollowPath.max_vel_theta: 0.0
       NORMAL:
         ros__parameters:
-          max_vel_x: 0.26
-          max_vel_y: 0.0
-          max_vel_theta: 1.0
+          FollowPath.max_vel_x: 0.26
+          FollowPath.max_vel_theta: 1.0
+
+amcl:
+  ros__parameters:
+    type: node
+    modes:
+      __DEFAULT__:
+        ros__parameters:
+          transform_tolerance: 0.2
+      LASER_ERROR: 
+        ros__parameters:
+          transform_tolerance: 2.5
