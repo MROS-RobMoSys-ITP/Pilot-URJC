@@ -70,47 +70,42 @@ def main(args=None):
     print ("------------------------------")
     print ("Specify the option number:")
     print ("------------------------------")
+    print (" 0) Default")
     print (" 1) Battery low")
-    print (" 2) Network down")
-    print (" 3) Robot lost")
-    print (" 4) Obstructed")
+    print (" 2) Robot lost")
+    print (" 3) Obstructed")
     print ("------------------------------")
-    print (" 5) Charge completed")
-    print (" 6) Network reset")
-    print (" 7) Robot located")
-    print (" 8) Obstructed solved")
-    print (" 9) Laser Error")
+    print (" 4) Charge completed")
+    print (" 5) Robot located")
+    print (" 6) Obstructed solved")
+    print (" 7) Navigate with PointCloud")
     print ("------------------------------")
 
     option = input()
-
-    if option == "1":
+    if option == "0":
+        print ("Default") 
+        mode_name = '__DEFAULT__'
+    elif option == "1":
         print ("Battery low.") 
         mode_name = 'LOW_BATTERY'
     elif option == "2":
-        print ("Internet lost. (Dialog down)") 
-        mode_name = 'DIALOG'  # doesn't exist  
-    elif option == "3":
         print ("Robot lost.") 
         mode_name = 'LOST'
-    elif option == "4":
+    elif option == "3":
         print ("Obstacle.") 
         mode_name = 'OBSTRUCTED'
-    elif option == "5":
+    elif option == "4":
         print ("Charge completed.")
         mode_name = 'NORMAL'
-    elif option == "6":
-        print ("Internet reset.")
-        mode_name = 'NORMAL'
-    elif option == "7":
+    elif option == "5":
         print ("Robot located.")
         mode_name = 'NORMAL'
-    elif option == "8":
+    elif option == "6":
         print ("Obstacle deleted")
         mode_name = 'NORMAL'
-    elif option == "9":
-        print ("Laser Error")
-        mode_name = 'LASER_ERROR'
+    elif option == "7":
+        print ("Navigate with PointCloud")
+        mode_name = 'NAVIGATE_W_POINTCLOUD'
     else:
         print("Invalid option.")
         sys.exit()
