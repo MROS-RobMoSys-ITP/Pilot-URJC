@@ -14,35 +14,25 @@ pilot:
         bt_navigator: active
         controller_server: active
         pointcloud_to_laser: inactive
-      MODERATE:
-        amcl: active
-        bt_navigator: active.ROUNDROBIN
-        controller_server: active.SLOW
-        pointcloud_to_laser: inactive
-      NAVIGATE_W_POINTCLOUD:
-        amcl: active.NAVIGATE_W_POINTCLOUD
+      DEGRADED:
+        amcl: active.DEGRADED
         bt_navigator: active
-        controller_server: active.NAVIGATE_W_POINTCLOUD
+        controller_server: active.DEGRADED
         pointcloud_to_laser: active
       PERFORMANCE:
         amcl: active
         bt_navigator: active.SIMPLE
         controller_server: active.FAST
         pointcloud_to_laser: inactive
-      LOW_BATTERY:
+      ENERGY_SAVING:
         amcl: active
         bt_navigator: active.LOW_BATTERY
-        controller_server: active.LOW_BATTERY
+        controller_server: active.SLOW
         pointcloud_to_laser: inactive
-      LOST:
+      SLOW:
         amcl: active
-        bt_navigator: active.LOST
-        controller_server: active.LOST
-        pointcloud_to_laser: inactive
-      OBSTRUCTED:
-        amcl: active
-        bt_navigator: active.OBSTRUCTED
-        controller_server: active
+        bt_navigator: active
+        controller_server: active.SLOW
         pointcloud_to_laser: inactive
 
 amcl:
@@ -52,7 +42,7 @@ amcl:
       __DEFAULT__:
         ros__parameters:
           transform_tolerance: 0.2
-      NAVIGATE_W_POINTCLOUD: 
+      DEGRADED: 
         ros__parameters:
           transform_tolerance: 2.5 
 
@@ -63,21 +53,12 @@ bt_navigator:
       __DEFAULT__:
         ros__parameters:
           bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
-      ROUNDROBIN:
-        ros__parameters:
-          bt_xml_filename: "navigate_w_replanning_and_round_robin_recovery.xml"
       SIMPLE:
         ros__parameters:
           bt_xml_filename: "navigate_w_replanning.xml"
       LOW_BATTERY:
         ros__parameters:
           bt_xml_filename: "navigate_w_replanning_and_battery_warning.xml"
-      LOST:
-        ros__parameters:
-          bt_xml_filename: "navigate_w_replanning_and_robot_lost.xml"
-      OBSTRUCTED:
-        ros__parameters:
-          bt_xml_filename: "navigate_w_replanning_and_obstacle_detected.xml"
 
 pointcloud_to_laser:
   ros__parameters:
@@ -104,16 +85,8 @@ controller_server:
         ros__parameters:
           FollowPath.max_vel_x: 0.35
           FollowPath.max_vel_theta: 1.3
-      LOW_BATTERY: 
-        ros__parameters:
-          FollowPath.max_vel_x: 0.2
-          FollowPath.max_vel_theta: 0.6
-      NAVIGATE_W_POINTCLOUD: 
+      DEGRADED: 
         ros__parameters:
           FollowPath.max_vel_x: 0.1
           FollowPath.max_vel_theta: 0.4
           FollowPath.transform_tolerance: 2.5
-      LOST: 
-        ros__parameters:
-          FollowPath.max_vel_x: 0.0
-          FollowPath.max_vel_theta: 0.0

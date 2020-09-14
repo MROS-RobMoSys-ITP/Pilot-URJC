@@ -71,41 +71,28 @@ def main(args=None):
     print ("Specify the option number:")
     print ("------------------------------")
     print (" 0) Default")
-    print (" 1) Battery low")
-    print (" 2) Robot lost")
-    print (" 3) Obstructed")
+    print (" 1) Degraded (Navigate with pointcloud)")
+    print (" 2) Performance")
+    print (" 3) Energy saving")
+    print (" 4) Slow")
     print ("------------------------------")
-    print (" 4) Charge completed")
-    print (" 5) Robot located")
-    print (" 6) Obstructed solved")
-    print (" 7) Navigate with PointCloud")
-    print ("------------------------------")
-
+   
     option = input()
     if option == "0":
         print ("Default") 
         mode_name = '__DEFAULT__'
     elif option == "1":
-        print ("Battery low.") 
-        mode_name = 'LOW_BATTERY'
+        print ("Degraded (Navigate with pointcloud).") 
+        mode_name = 'DEGRADED'
     elif option == "2":
-        print ("Robot lost.") 
-        mode_name = 'LOST'
+        print ("Performance") 
+        mode_name = 'PERFORMANCE'
     elif option == "3":
-        print ("Obstacle.") 
-        mode_name = 'OBSTRUCTED'
+        print ("Energy saving.") 
+        mode_name = 'ENERGY_SAVING'
     elif option == "4":
-        print ("Charge completed.")
-        mode_name = 'NORMAL'
-    elif option == "5":
-        print ("Robot located.")
-        mode_name = 'NORMAL'
-    elif option == "6":
-        print ("Obstacle deleted")
-        mode_name = 'NORMAL'
-    elif option == "7":
-        print ("Navigate with PointCloud")
-        mode_name = 'NAVIGATE_W_POINTCLOUD'
+        print ("Slow.")
+        mode_name = 'SLOW'
     else:
         print("Invalid option.")
         sys.exit()
