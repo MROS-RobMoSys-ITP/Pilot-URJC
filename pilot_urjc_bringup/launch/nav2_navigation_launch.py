@@ -104,11 +104,6 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'cmd_vel_topic', default_value='cmd_vel',
             description='Command velocity topic'),
-        
-        Node(
-            package='laser_resender',
-            executable='laser_resender_node',
-            output='screen'),
 
         Node(
             package='nav2_controller',
