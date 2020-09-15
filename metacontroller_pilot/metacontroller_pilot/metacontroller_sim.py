@@ -70,47 +70,29 @@ def main(args=None):
     print ("------------------------------")
     print ("Specify the option number:")
     print ("------------------------------")
-    print (" 1) Battery low")
-    print (" 2) Network down")
-    print (" 3) Robot lost")
-    print (" 4) Obstructed")
+    print (" 0) Default")
+    print (" 1) Degraded (Navigate with pointcloud)")
+    print (" 2) Performance")
+    print (" 3) Energy saving")
+    print (" 4) Slow")
     print ("------------------------------")
-    print (" 5) Charge completed")
-    print (" 6) Network reset")
-    print (" 7) Robot located")
-    print (" 8) Obstructed solved")
-    print (" 9) Laser Error")
-    print ("------------------------------")
-
+   
     option = input()
-
-    if option == "1":
-        print ("Battery low.") 
-        mode_name = 'LOW_BATTERY'
+    if option == "0":
+        print ("Default") 
+        mode_name = '__DEFAULT__'
+    elif option == "1":
+        print ("Degraded (Navigate with pointcloud).") 
+        mode_name = 'DEGRADED'
     elif option == "2":
-        print ("Internet lost. (Dialog down)") 
-        mode_name = 'DIALOG'  # doesn't exist  
+        print ("Performance") 
+        mode_name = 'PERFORMANCE'
     elif option == "3":
-        print ("Robot lost.") 
-        mode_name = 'LOST'
+        print ("Energy saving.") 
+        mode_name = 'ENERGY_SAVING'
     elif option == "4":
-        print ("Obstacle.") 
-        mode_name = 'OBSTRUCTED'
-    elif option == "5":
-        print ("Charge completed.")
-        mode_name = 'NORMAL'
-    elif option == "6":
-        print ("Internet reset.")
-        mode_name = 'NORMAL'
-    elif option == "7":
-        print ("Robot located.")
-        mode_name = 'NORMAL'
-    elif option == "8":
-        print ("Obstacle deleted")
-        mode_name = 'NORMAL'
-    elif option == "9":
-        print ("Laser Error")
-        mode_name = 'LASER_ERROR'
+        print ("Slow.")
+        mode_name = 'SLOW'
     else:
         print("Invalid option.")
         sys.exit()
