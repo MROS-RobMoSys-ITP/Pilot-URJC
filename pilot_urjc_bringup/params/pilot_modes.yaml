@@ -52,13 +52,13 @@ bt_navigator:
     modes:
       __DEFAULT__:
         ros__parameters:
-          bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
+          default_bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
       SIMPLE:
         ros__parameters:
-          bt_xml_filename: "navigate_w_replanning.xml"
+          default_bt_xml_filename: "navigate_w_replanning.xml"
       LOW_BATTERY:
         ros__parameters:
-          bt_xml_filename: "navigate_w_replanning_and_battery_warning.xml"
+          default_bt_xml_filename: "navigate_w_replanning_and_battery_warning.xml"
 
 pointcloud_to_laser:
   ros__parameters:
@@ -79,12 +79,12 @@ controller_server:
           FollowPath.transform_tolerance: 0.2
       SLOW:
         ros__parameters:
-          FollowPath.max_vel_x: 0.2
-          FollowPath.max_vel_theta: 0.6
+          FollowPath.max_vel_x: 0.1
+          FollowPath.max_vel_theta: 0.4
       FAST:
         ros__parameters:
-          FollowPath.max_vel_x: 0.35
-          FollowPath.max_vel_theta: 1.3
+          FollowPath.max_vel_x: 0.5
+          FollowPath.max_vel_theta: 1.5
       DEGRADED: 
         ros__parameters:
           FollowPath.max_vel_x: 0.1

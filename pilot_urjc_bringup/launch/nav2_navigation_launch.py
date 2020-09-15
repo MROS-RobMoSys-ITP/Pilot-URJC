@@ -93,7 +93,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'bt_xml_file',
             default_value=os.path.join(
-                get_package_share_directory('nav2_bt_navigator'),
+                get_package_share_directory('nav2_bt_modes_navigator'),
                 'behavior_trees', 'navigate_w_replanning_and_recovery.xml'),
             description='Full path to the behavior tree xml file to use'),
 
@@ -129,8 +129,8 @@ def generate_launch_description():
             remappings=remappings),
 
         Node(
-            package='nav2_bt_navigator',
-            executable='bt_navigator',
+            package='nav2_bt_modes_navigator',
+            executable='bt_modes_navigator',
             name='bt_navigator',
             output='screen',
             parameters=[configured_params],
