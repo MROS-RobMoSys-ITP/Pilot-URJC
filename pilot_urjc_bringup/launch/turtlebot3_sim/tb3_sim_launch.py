@@ -19,11 +19,14 @@ import os
 from ament_index_python.packages import get_package_share_directory, get_package_prefix
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, EmitEvent
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PythonExpression
-from launch_ros.actions import Node
+from launch_ros.actions import Node, LifecycleNode
+from launch_ros.events.lifecycle import ChangeState
+import launch.events
+import lifecycle_msgs.msg
 
 def generate_launch_description():
     # Get the launch directory
@@ -93,7 +96,7 @@ def generate_launch_description():
         remappings=remappings,
         arguments=[urdf])
 
-    pcl2laser_cmd = Node(
+    pcl2laser_cmd = LifecycleNode(
         package='pointcloud_to_laserscan', 
         executable='pointcloud_to_laserscan_managed',
         name='pointcloud_to_laser',
@@ -114,6 +117,25 @@ def generate_launch_description():
             'inf_epsilon': 1.0
         }],
     )
+    emit_event_to_request_that_pcl2laser_configure_transition = EmitEvent(
+        event=ChangeState(
+            lifecycle_node_matcher=launch.events.matches_action(pcl2laser_cmd),
+            transition_id=lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE,
+        )
+    )
+
+    laser_resender_cmd = LifecycleNode(
+        name='laser_resender',
+        package='laser_resender',
+        executable='laser_resender_node',
+        output='screen')
+    
+    emit_event_to_request_that_laser_resender_configure_transition = EmitEvent(
+        event=ChangeState(
+            lifecycle_node_matcher=launch.events.matches_action(laser_resender_cmd),
+            transition_id=lifecycle_msgs.msg.Transition.TRANSITION_CONFIGURE,
+        )
+    )
 
     ld = LaunchDescription()
 
@@ -130,4 +152,7 @@ def generate_launch_description():
     ld.add_action(start_gazebo_client_cmd)
     ld.add_action(start_robot_state_publisher_cmd)
     ld.add_action(pcl2laser_cmd)
+    ld.add_action(laser_resender_cmd)
+    ld.add_action(emit_event_to_request_that_pcl2laser_configure_transition)
+    ld.add_action(emit_event_to_request_that_laser_resender_configure_transition)
     return ld

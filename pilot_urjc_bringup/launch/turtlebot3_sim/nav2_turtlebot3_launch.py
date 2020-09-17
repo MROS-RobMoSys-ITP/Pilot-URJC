@@ -19,12 +19,11 @@ import os
 from ament_index_python.packages import get_package_share_directory, get_package_prefix
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
-
 
 def generate_launch_description():
     # Get the launch directory
@@ -123,16 +122,6 @@ def generate_launch_description():
                           'autostart': autostart,
                           'cmd_vel_topic': cmd_vel_topic}.items())
 
-    laser_resender_cmd = Node(
-        package='laser_resender',
-        executable='laser_resender_node',
-        output='screen')
-    
-    lifecycle_manager_cmd = Node(
-        package='pilot_lifecycle_manager',
-        executable='lifecycle_manager_node',
-        output='screen')
-
     shm_model_path = (get_package_share_directory('pilot_urjc_bringup') +
         '/params/pilot_modes.yaml')
 
@@ -162,8 +151,6 @@ def generate_launch_description():
 
     # Add any conditioned actions
     ld.add_action(rviz_cmd)
-    ld.add_action(laser_resender_cmd)
-    ld.add_action(lifecycle_manager_cmd)
     # Add the actions to launch all of the navigation nodes
     ld.add_action(bringup_cmd)
 
