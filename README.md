@@ -68,7 +68,8 @@ The modes change next parameters in the components (shown in the figure), with s
     
     NOTE: if the compilation fails because of it could not find some packages run again 
       rosdep install -y -r -q --from-paths src --ignore-src --rosdistro foxy
-    
+      
+    source [ros2_ws]/install/setup.bash
   ```
 
 ### Turtlebot3
