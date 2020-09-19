@@ -8,32 +8,44 @@ pilot:
       bt_navigator
       controller_server
       pointcloud_to_laser
+      laser_resender
     modes:
       __DEFAULT__:
+        amcl: inactive
+        bt_navigator: inactive
+        controller_server: inactive
+        pointcloud_to_laser: inactive
+        laser_resender: inactive
+      NORMAL:
         amcl: active
         bt_navigator: active
         controller_server: active
         pointcloud_to_laser: inactive
+        laser_resender: active
       DEGRADED:
         amcl: active.DEGRADED
         bt_navigator: active
         controller_server: active.DEGRADED
         pointcloud_to_laser: active
+        laser_resender: inactive
       PERFORMANCE:
         amcl: active
         bt_navigator: active.SIMPLE
         controller_server: active.FAST
         pointcloud_to_laser: inactive
+        laser_resender: active
       ENERGY_SAVING:
         amcl: active
         bt_navigator: active.LOW_BATTERY
         controller_server: active.SLOW
         pointcloud_to_laser: inactive
+        laser_resender: active
       SLOW:
         amcl: active
         bt_navigator: active
         controller_server: active.SLOW
         pointcloud_to_laser: inactive
+        laser_resender: active
 
 amcl:
   ros__parameters:
@@ -59,6 +71,14 @@ bt_navigator:
       LOW_BATTERY:
         ros__parameters:
           default_bt_xml_filename: "navigate_w_replanning_and_battery_warning.xml"
+
+laser_resender:
+  ros__parameters:
+    type: node
+    modes:
+      __DEFAULT__:
+        ros__parameters:
+          laser_resender_test: "0"
 
 pointcloud_to_laser:
   ros__parameters:

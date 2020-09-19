@@ -70,7 +70,7 @@ def main(args=None):
     print ("------------------------------")
     print ("Specify the option number:")
     print ("------------------------------")
-    print (" 0) Default")
+    print (" 0) Normal")
     print (" 1) Degraded (Navigate with pointcloud)")
     print (" 2) Performance")
     print (" 3) Energy saving")
@@ -79,8 +79,8 @@ def main(args=None):
    
     option = input()
     if option == "0":
-        print ("Default") 
-        mode_name = '__DEFAULT__'
+        print ("Normal") 
+        mode_name = 'NORMAL'
     elif option == "1":
         print ("Degraded (Navigate with pointcloud).") 
         mode_name = 'DEGRADED'

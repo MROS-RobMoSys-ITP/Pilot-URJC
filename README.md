@@ -1,6 +1,15 @@
 # Pilot-URJC
-
 This repo contains the first pilot prepared by the URJC. It is composed of several elements that are explained below:
+
+# Table of Contents
+1. [What's the Pilot Behavior?](#pilot-behavior)
+2. [The dialog system](#dialog-system)
+3. [How are the system modes integrated in the pilot?](#metacontroller-pilot)
+4. [Pilot-URJC and MROS ecosystem installation](#pilot-urjc-and-mros-ecosystem-installation)
+5. [Launching MROS ecosystem](#launching-mros-ecosystem)
+  - [In Real TIAGo robot](#real-tiago-robot)
+  - [Simulated turtlebot3](#launching-in-simulated-turtlebot3)
+6. [Launching Pilot-URJC](#launching-pilot-urjc)
 
 ### Pilot Behavior
 
@@ -23,10 +32,10 @@ This module contains a ROS node that simulates the contingencies in the specific
 The modes are:
 
 1. Normal.
-2. Low_Battery: The robot is running out of battery. The robot must slow down the speed, and bt_modes_navigator informs the operator about this contingency.
-3. Obstructed: The robot finds an obstacle, and it can't find an alternative path. The robot informs the operator about this contingency.
-4. Lost: The localization information has degraded. The robot runs recovery behaviors.
-5. Network_Down: Network is down, so the dialog must be carried out using the tablet instead of DialogFlow, which requires a network connection.
+2. Degraded: An essential component of the robot has failed (the laser sensor), and it must use another component (RGBD camera) to replace it and continues with its tasks.
+3. Performance: The robot increases its speed and does not execute recovery behaviors to reduce the task's execution time.
+4. Energy saving: The robot is running out of battery. The robot must slow down the speed, and bt_modes_navigator informs the operator about this contingency.
+5. Slow: The robot slow down the speed.
 
 The modes change next parameters in the components (shown in the figure), with some effects:
 
@@ -36,7 +45,7 @@ The modes change next parameters in the components (shown in the figure), with s
 
 ![pilot_overview](resources/pilot-urjc.png)
 
-## Build pilot-urjc demo
+## Pilot-URJC and MROS ecosystem installation
 
   We will use **vcs-tool** to get the dependencies and packages. We assume that you have a ros2 workspace ([ros2_ws]), if you don't have one, just create it with:
 
@@ -45,7 +54,7 @@ The modes change next parameters in the components (shown in the figure), with s
     mkdir -p [path-to-your-ros2-ws]/src
   ```
 
-### PilotURJC and its dependencies
+### Pilot-URJC and its dependencies
 
   Fetch, build and install navigation2 stack:
 
@@ -59,7 +68,8 @@ The modes change next parameters in the components (shown in the figure), with s
     
     NOTE: if the compilation fails because of it could not find some packages run again 
       rosdep install -y -r -q --from-paths src --ignore-src --rosdistro foxy
-    
+      
+    source [ros2_ws]/install/setup.bash
   ```
 
 ### Turtlebot3
@@ -75,39 +85,33 @@ The modes change next parameters in the components (shown in the figure), with s
     colcon build --symlink-install
   ```  
 
-## Launching pilot-urjc demo
+## Launching MROS ecosystem
 
 This pilot has been tested on different platforms. Above we show how to run the demo in each one.
 
 ### Real TIAGo robot.
+
+  In the TIAGO_specifications.pdf of this repository you can find a full description of the TIAGo robot.
+
   #### Before start:
-  - Make sure that the navigation, localization and map-server are switched off in the robot before start the demo.
-  - The shell windows that will launch the ros1_bridge and the ros1 components needs a correct [network configuration](http://wiki.ros.org/ROS/NetworkSetup), setting the ROS_IP and ROS_MASTER_URI environment variables.
-  - We have used rmw_cyclonedds_cpp as RMW_IMPLEMENTATION for the tests.
+  1. Make sure that the navigation, localization and map-server are switched off in the robot before start the demo.
+  2. The shell windows that will launch the ros1_bridge and the ros1 components needs a correct [network configuration](http://wiki.ros.org/ROS/NetworkSetup), setting the ROS_IP and ROS_MASTER_URI environment variables.
+  3. We have used rmw_cyclonedds_cpp and rmw_fastdds_cpp RMW_IMPLEMENTATION for the tests.
 
-1. **![ros1_bridge](https://github.com/ros2/ros1_bridge)**:
-  To launch the demo in real TIAGo we have to use the ros1_bridge package, at this moment TIAGo drivers are not migrated to ROS2.
-  ```
-    ros2 run ros1_bridge dynamic_bridge __log_disable_rosout:=true
-  ```
-2. **[nav2-TIAGo-support](https://github.com/IntelligentRoboticsLabs/nav2-TIAGo-support)**:
-  The integration of the nav2 and TIAGo through the ros1_bridge needs two tools to fix some issues.
-  ```
-    rosrun tf_static_resender tf_static_resender
-  ```
-  ```
-    rosrun cmd_vel_mux cmd_vel_mux_node
+  4. **![ros1_bridges](https://github.com/fmrico/ros1_bridge/tree/dedicated_bridges)**:
+  To launch the demo in real TIAGo we have to use the some bridges, at this moment TIAGo drivers are not migrated to ROS2.
+  ```console
+    ros2 run ros1_bridge twist_2_to_1
+    ros2 run ros1_bridge scan_1_to_2
+    ros2 run ros1_bridge imu_1_to_2
+    ros2 run ros1_bridge tf_static_1_to_2
+    ros2 run ros1_bridge tf_1_to_2
   ```
 
-3. **A dummy metacontroller**:
-  With this tool, you can simulate different contingency scenarios.
-  ```
-    ros2 run metacontroller_pilot metacontroller
-  ```
-4. **Demo launcher**:
+1. **Navigation launcher**:
   This launcher includes rviz, nav2, amcl, map-server, **[system-modes](https://github.com/micro-ROS/system_modes)**, etc.
-  The **system-modes mode-manager** takes the modes description from params/pilot_modes.yaml.
-  ```
+  The **system-modes mode-manager** takes the modes description from `params/pilot_modes.yaml`.
+  ```console
     ros2 launch pilot_urjc_bringup nav2_tiago_launch.py
   ```
 
@@ -131,15 +135,11 @@ This pilot has been tested on different platforms. Above we show how to run the 
       ros2 launch pilot_urjc_bringup nav2_turtlebot3_launch.py
     ```
 
-3. **A dummy metacontroller**
-
-    With this tool, you can simulate different contingency scenarios.
-
-    ```console
-      ros2 run metacontroller_pilot metacontroller
-    ```
-
 ### Launching in simulated turtlebot2
+
+To install ROS (Melodic version), all the full documentation and steps to do during this proccess are in the next page:
+
+http://wiki.ros.org/melodic/Installation/Ubuntu
 
 1. **Turtlebot ROS1 Gazebo simulator:**
 
@@ -158,12 +158,8 @@ This pilot has been tested on different platforms. Above we show how to run the 
   ```
     rosrun tf_static_resender tf_static_resender
   ```
-4. **A dummy metacontroller**:
-  With this tool, you can simulate different contingency scenarios.
-  ```
-    ros2 run metacontroller_pilot metacontroller
-  ```
-5. **Demo launcher**:
+
+4. **Navigation launcher**:
   This launcher includes rviz, nav2, amcl, map-server, **[system-modes](https://github.com/micro-ROS/system_modes)**, etc.
   The **system-modes mode-manager** takes the modes description from params/pilot_modes.yaml.
   ```
@@ -172,7 +168,7 @@ This pilot has been tested on different platforms. Above we show how to run the 
 
 ### Real Kobuki robot.
   #### Before start:
-  ```
+  ```console
     sudo apt-get install ros-eloquent-eigen*
     cd [ros2_ws]/src
     git clone https://github.com/MROS-RobMoSys-ITP/Pilot-URJC.git
@@ -184,7 +180,7 @@ This pilot has been tested on different platforms. Above we show how to run the 
 #### Setup:
 - Add the map of the scenario in the Pilot-URJC/pilot_kobuki/map.
 - Add a little modification in navigation2/nav2_bringup/bringup/launch/nav2_bringup_launch.py:
-```
+```console
     kobuki_dir = get_package_share_directory('pilot_kobuki')
 
     declare_map_yaml_cmd = DeclareLaunchArgument(
@@ -195,20 +191,31 @@ This pilot has been tested on different platforms. Above we show how to run the 
 - Set base_frame_id value in navigation2/nav2_bringup/bringup/params/nav2_params.yaml:
 
 ```
-    base_frame_id: "base_link"
+  base_frame_id: "base_link"
 ```
 
 #### Test the navigation in the real Kobuki robot:
+```console
+  source [ros2_ws]/install/setup.bash
+  ros2 launch pilot_kobuki kobuki2.launch.py
 ```
-source [ros2_ws]/install/setup.bash
-ros2 launch pilot_kobuki kobuki2.launch.py
-```
 
-### TIAGo robot specifications
-In the TIAGO_specifications.pdf of this repository you can find a full description of the TIAGo robot.
+## Launching Pilot-URJC
 
-### Install ROS Melodic
+1. **A dummy metacontroller**
 
-To install ROS (Melodic version), all the full documentation and steps to do during this proccess are in the next page:
+    With this tool, you can simulate different contingency scenarios.
 
-http://wiki.ros.org/melodic/Installation/Ubuntu
+    ```console
+      ros2 run metacontroller_pilot metacontroller
+    ```
+
+With all the above, we will have enough to test some navigation actions and experiment changing the current mode and seeing how this change affects the navigation.
+
+Finally, we will launch the pilot.
+
+2. **Pilot Behavior**
+
+    ```console
+      ros2 launch pilot_behavior pilot_urjc_launch.py
+    ```
