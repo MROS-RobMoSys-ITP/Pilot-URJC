@@ -162,7 +162,7 @@ BtNavigator::loadBehaviorTree(const std::string & bt_xml_filename)
   if (current_bt_xml_filename_ == bt_xml_filename) {
     return true;
   }
-
+  
   // Read the input BT XML from the specified file into a string
   std::ifstream xml_file(bt_xml_filename);
 
@@ -264,9 +264,14 @@ BtNavigator::navigateToPose()
     };
 
   auto bt_xml_filename = action_server_->get_current_goal()->behavior_tree;
-
+  
   // Empty id in request is default for backward compatibility
   bt_xml_filename = bt_xml_filename == "" ? default_bt_xml_filename_ : bt_xml_filename;
+  
+  if (new_behavior_tree_)
+  {
+    bt_xml_filename = default_bt_xml_filename_;
+  }
 
   if (!loadBehaviorTree(bt_xml_filename)) {
     RCLCPP_ERROR(
@@ -280,6 +285,20 @@ BtNavigator::navigateToPose()
   std::shared_ptr<Action::Feedback> feedback_msg = std::make_shared<Action::Feedback>();
 
   auto on_loop = [&]() {
+
+      bool finished = false;
+      while(!finished) {
+        if (new_behavior_tree_) {
+          finished = false;
+          new_behavior_tree_ = false;
+          if (!loadBehaviorTree(default_bt_xml_filename_)) {
+            RCLCPP_ERROR(get_logger(), "Error restarting behavior tree");
+          }
+        } else {
+          finished = true;
+        }
+      }
+
       if (action_server_->is_preempt_requested()) {
         RCLCPP_INFO(get_logger(), "Received goal preemption request");
         action_server_->accept_pending_goal();
@@ -306,22 +325,7 @@ BtNavigator::navigateToPose()
     };
 
   // Execute the BT that was previously created in the configure step
-  nav2_behavior_tree::BtStatus rc;
-  bool finished = false;
-  while(!finished) {
-    rc = bt_->run(&tree_, on_loop, is_canceling);
-
-    if (new_behavior_tree_) {
-      finished = false;
-      new_behavior_tree_ = false;
-
-      if (!loadBehaviorTree(current_bt_xml_filename_)) {
-       RCLCPP_ERROR(get_logger(), "Error restarting behavior tree");
-      }
-    } else {
-      finished = true;
-    }
-  }
+  nav2_behavior_tree::BtStatus rc = bt_->run(&tree_, on_loop, is_canceling);
 
   // Make sure that the Bt is not in a running state from a previous execution
   // note: if all the ControlNodes are implemented correctly, this is not needed.
@@ -378,7 +382,6 @@ BtNavigator::on_parameter_event_callback(
   const rcl_interfaces::msg::ParameterEvent::SharedPtr event)
 {
   using namespace rcl_interfaces::msg;
-
   for (auto & changed_parameter : event->changed_parameters) {
     const auto & type = changed_parameter.value.type;
     const auto & name = changed_parameter.name;
@@ -387,13 +390,11 @@ BtNavigator::on_parameter_event_callback(
     if (type == ParameterType::PARAMETER_STRING) {
       if (name == "default_bt_xml_filename") {
         new_behavior_tree_ = true;
-        
         std::string fullpath = current_bt_xml_filename_;
         int beginIdx = fullpath.rfind('/');
         std::string filename = fullpath.substr(beginIdx + 1);
         fullpath.erase(fullpath.begin() + beginIdx + 1, fullpath.end());
-        
-        current_bt_xml_filename_ = fullpath + value.string_value;
+        default_bt_xml_filename_ = fullpath + value.string_value;
       }
     }
   }
