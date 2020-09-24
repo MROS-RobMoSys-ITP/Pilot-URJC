@@ -59,6 +59,8 @@ The modes change next parameters in the components (shown in the figure), with s
   Fetch, build and install navigation2 stack:
 
   ```console
+    sudo apt install ros-foxy-slam-toolbox ros-foxy-gazebo-ros-pkgs
+
     cd [ros2_ws]/src
     git clone https://github.com/MROS-RobMoSys-ITP/Pilot-URJC.git
     vcs import < Pilot-URJC/dependencies.repos
@@ -124,7 +126,7 @@ This pilot has been tested on different platforms. Above we show how to run the 
       export TURTLEBOT3_MODEL=${TB3_MODEL}
       ros2 launch pilot_urjc_bringup tb3_sim_launch.py
     ```
-
+  **After the last command, the Gazebo simulator is running in background. Don't worry if no window is opened.**
 2. **Demo launcher**
 
     This launcher includes rviz, nav2, amcl, map-server, **[system-modes](https://github.com/micro-ROS/system_modes)**, etc.
@@ -134,6 +136,7 @@ This pilot has been tested on different platforms. Above we show how to run the 
       export TURTLEBOT3_MODEL=${TB3_MODEL}
       ros2 launch pilot_urjc_bringup nav2_turtlebot3_launch.py
     ```
+  **RVIz opens, and the navigation system is waiting for the activation of the laser_driver. It is not necessary to set an initial robot position with the 2D Pose Estimate tool. When the laser_driver is up, the pose will be set automatically.**
 
 ### Launching in simulated turtlebot2
 
@@ -209,6 +212,8 @@ http://wiki.ros.org/melodic/Installation/Ubuntu
     ```console
       ros2 run metacontroller_pilot metacontroller
     ```
+    
+**Setting the NORMAL mode, the laser_driver goes to active mode, and everything starts. RVIz shows the local and global costmaps, the laser measures, and the transform tree.**
 
 With all the above, we will have enough to test some navigation actions and experiment changing the current mode and seeing how this change affects the navigation.
 
