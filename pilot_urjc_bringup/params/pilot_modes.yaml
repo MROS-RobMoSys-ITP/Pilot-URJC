@@ -16,7 +16,7 @@ pilot:
         controller_server: inactive
         pointcloud_to_laser: inactive
         laser_resender: inactive
-      NORMAL:
+      f3_v3_r1:
         amcl: active
         bt_navigator: active
         controller_server: active
@@ -28,19 +28,19 @@ pilot:
         controller_server: active.DEGRADED
         pointcloud_to_laser: active
         laser_resender: inactive
-      PERFORMANCE:
+      f1_v1_r2:
         amcl: active
         bt_navigator: active.SIMPLE
         controller_server: active.FAST
         pointcloud_to_laser: inactive
         laser_resender: active
-      ENERGY_SAVING:
+      f1_v1_r3:
         amcl: active
         bt_navigator: active.LOW_BATTERY
         controller_server: active.SLOW
         pointcloud_to_laser: inactive
         laser_resender: active
-      SLOW:
+      f1_v1_r1:
         amcl: active
         bt_navigator: active
         controller_server: active.SLOW
@@ -54,9 +54,9 @@ amcl:
       __DEFAULT__:
         ros__parameters:
           transform_tolerance: 0.2
-      DEGRADED: 
+      DEGRADED:
         ros__parameters:
-          transform_tolerance: 2.5 
+          transform_tolerance: 2.5
 
 bt_navigator:
   ros__parameters:
@@ -107,7 +107,7 @@ controller_server:
           FollowPath.max_vel_x: 0.5
           FollowPath.max_vel_theta: 1.5
           FollowPath.transform_tolerance: 0.2
-      DEGRADED: 
+      DEGRADED:
         ros__parameters:
           FollowPath.max_vel_x: 0.1
           FollowPath.max_vel_theta: 0.4
