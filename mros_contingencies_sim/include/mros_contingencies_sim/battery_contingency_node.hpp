@@ -35,7 +35,7 @@ private:
   void amclCallback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg);
   float calculateDistance(
     float current_x, float current_y, float old_x, float old_y);
-
+  void on_error(std::string msg);
   void setOldposition(geometry_msgs::msg::Pose current_pose);
   
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr amcl_sub_;

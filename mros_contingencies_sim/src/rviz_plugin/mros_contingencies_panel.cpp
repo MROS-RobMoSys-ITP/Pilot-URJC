@@ -59,14 +59,14 @@ MROSContingenciesPanel::MROSContingenciesPanel(QWidget * parent)
 
   initial_ = new QState();
   initial_->setObjectName("initial");
-  initial_->assignProperty(laser_contingency_button_, "text", "Deactive Laser Driver");
+  initial_->assignProperty(laser_contingency_button_, "text", "Inject all-zero laser msg in the system");
   initial_->assignProperty(laser_contingency_button_, "toolTip", laser_contingency_msg);
   initial_->assignProperty(laser_contingency_button_, "enabled", true);
 
   // State entered when navigate_to_pose action is not active
   idle_ = new QState();
   idle_->setObjectName("idle");
-  idle_->assignProperty(laser_contingency_button_, "text", "Deactive Laser Driver");
+  idle_->assignProperty(laser_contingency_button_, "text", "Inject all-zero laser msg in the system");
   idle_->assignProperty(laser_contingency_button_, "enabled", false);
 
   QObject::connect(initial_, SIGNAL(exited()), this, SLOT(onStartup()));
@@ -92,6 +92,10 @@ MROSContingenciesPanel::MROSContingenciesPanel(QWidget * parent)
 
   client_laser_ = client_node_->create_client<lifecycle_msgs::srv::ChangeState>(
     change_state_service_name);
+  pub_ = client_node_->create_publisher<sensor_msgs::msg::LaserScan>("/scan", rclcpp::SensorDataQoS());
+
+  num_injected_msgs_ = 10;
+
 }
 
 MROSContingenciesPanel::~MROSContingenciesPanel()
@@ -107,38 +111,12 @@ MROSContingenciesPanel::onInitialize()
 void
 MROSContingenciesPanel::onStartup()
 {
-  std::cout << "onStartup" << std::endl;
-  auto request = std::make_shared<lifecycle_msgs::srv::ChangeState::Request>();
-  auto transition = lifecycle_msgs::msg::Transition::TRANSITION_DEACTIVATE;
-  request->transition.id = transition;
-  std::chrono::seconds time_out = std::chrono::seconds(5);
-  if (!client_laser_->wait_for_service(time_out)) {
-    RCLCPP_ERROR(
-      client_node_->get_logger(),
-      "Service %s is not available.",
-      client_laser_->get_service_name());
-    return;
-  }
-  // We send the request with the transition we want to invoke.
-  auto future_result = client_laser_->async_send_request(request);
-  // Let's wait until we have the answer from the node.
-  // If the request times out, we return an unknown state.
-  auto future_status = wait_for_result(future_result, time_out);
-  if (future_status != std::future_status::ready) {
-    RCLCPP_ERROR(
-      client_node_->get_logger(), "Server time out while getting current state for node %s",
-      managed_node_.c_str());
-    return;
-  }
-  // We have an answer, let's print our success.
-  if (future_result.get()->success) {
-    RCLCPP_INFO(
-      client_node_->get_logger(), "Transition %d successfully triggered.", static_cast<int>(transition));
-    return;
-  } else {
-    RCLCPP_WARN(
-      client_node_->get_logger(), "Failed to trigger transition %u", static_cast<unsigned int>(transition));
-    return;
+  int i = 0;
+  while (i < num_injected_msgs_)
+  {
+    sensor_msgs::msg::LaserScan msg;
+    pub_->publish(msg);
+    i++;
   }
 }
 

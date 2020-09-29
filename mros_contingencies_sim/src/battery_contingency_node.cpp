@@ -46,6 +46,12 @@ void BatteryContingency::setOldposition(geometry_msgs::msg::Pose current_pose)
 {
   last_pose_ = current_pose;
 }
+
+void BatteryContingency::on_error(std::string msg)
+{
+  RCLCPP_ERROR(get_logger(), "[%s] %s", get_name(), msg.c_str());
+}
+
   
 void BatteryContingency::amclCallback(
   const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg)
@@ -62,9 +68,13 @@ void BatteryContingency::amclCallback(
     setOldposition(msg->pose.pose);
   
   battery_level_ = battery_level_ - distance * battery_consumption_;
+  if (battery_level_ < 0.0)
+    battery_level_ = 0.0;
   std_msgs::msg::Float64 battery_msg;
   battery_msg.data = battery_level_;
   battery_pub_->publish(battery_msg);
+  if (battery_level_ < 15.0)
+    on_error("Battery level lower than 15%");
 }
 
 }

@@ -31,6 +31,8 @@
 #include "lifecycle_msgs/msg/transition.hpp"
 #include "lifecycle_msgs/srv/change_state.hpp"
 
+#include "sensor_msgs/msg/laser_scan.hpp"
+
 class QPushButton;
 
 namespace nav2_rviz_plugins
@@ -63,13 +65,14 @@ private:
 
   // The client used to control the laser driver
   std::shared_ptr<rclcpp::Client<lifecycle_msgs::srv::ChangeState>> client_laser_;
+  rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr pub_;
 
   QPushButton * laser_contingency_button_{nullptr};
   QStateMachine state_machine_;
 
   QState * initial_{nullptr};
   QState * idle_{nullptr};
-
+  int num_injected_msgs_;
 };
 
 }  // namespace nav2_rviz_plugins
