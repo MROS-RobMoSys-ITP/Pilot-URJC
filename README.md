@@ -122,7 +122,7 @@ This pilot has been tested on different platforms. Above we show how to run the 
 1. **Launch turtlebot3 world in gazebo sim**
 
     ```console
-      export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:[ros2_ws]/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/models
+      export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:[ros2_ws]/src/turtlebot3/turtlebot3_simulations/turtlebot3_gazebo/models:[ros2_ws]/src/Pilot-URJC/pilot_urjc_bringup/worlds/models
       export TURTLEBOT3_MODEL=${TB3_MODEL}
       ros2 launch pilot_urjc_bringup tb3_sim_launch.py
     ```
