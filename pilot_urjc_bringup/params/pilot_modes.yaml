@@ -11,11 +11,11 @@ pilot:
       laser_resender
     modes:
       __DEFAULT__:
-        amcl: inactive
-        bt_navigator: inactive
-        controller_server: inactive
-        pointcloud_to_laser: inactive
-        laser_resender: inactive
+        amcl: active
+        bt_navigator: active
+        controller_server: active
+        pointcloud_to_laser: active
+        laser_resender: active
       NORMAL:
         amcl: active
         bt_navigator: active
@@ -27,7 +27,7 @@ pilot:
         bt_navigator: active
         controller_server: active.DEGRADED
         pointcloud_to_laser: active
-        laser_resender: inactive
+        laser_resender: unconfigured
       PERFORMANCE:
         amcl: active
         bt_navigator: active.SIMPLE
@@ -46,6 +46,11 @@ pilot:
         controller_server: active.SLOW
         pointcloud_to_laser: inactive
         laser_resender: active
+    rules:
+      degrade_from_NORMAL:
+        if_target: active.NORMAL
+        if_part: [laser_resender, unconfigured]
+        new_target: active.DEGRADED
 
 amcl:
   ros__parameters:
@@ -78,7 +83,7 @@ laser_resender:
     modes:
       __DEFAULT__:
         ros__parameters:
-          laser_resender_test: "0"
+          node_name: "laser_resender"
 
 pointcloud_to_laser:
   ros__parameters:
@@ -86,7 +91,7 @@ pointcloud_to_laser:
     modes:
       __DEFAULT__:
         ros__parameters:
-          pointcloud_to_laser_test: "0"
+          node_name: "pointcloud_to_laser"
 
 controller_server:
   ros__parameters:
