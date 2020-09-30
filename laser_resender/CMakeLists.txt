@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(laser_resender)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_BUILD_TYPE DEBUG)
+#set(CMAKE_BUILD_TYPE DEBUG)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -21,6 +21,12 @@ set(dependencies
 
 add_executable(laser_resender_node src/laser_resender_node.cpp)
 ament_target_dependencies(laser_resender_node ${dependencies})
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  find_package(ament_lint_common REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 install(TARGETS
   laser_resender_node
