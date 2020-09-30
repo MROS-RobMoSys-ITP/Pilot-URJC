@@ -32,6 +32,7 @@ setup(
     entry_points={
         'console_scripts': [
             'metacontroller = metacontroller_pilot.metacontroller_sim:main',
+            'mode_manager = metacontroller_pilot.simple_mode_manager:main',
         ],
     },
 )

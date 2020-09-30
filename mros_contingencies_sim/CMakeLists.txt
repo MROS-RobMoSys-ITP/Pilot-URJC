@@ -29,6 +29,7 @@ find_package(rviz_default_plugins REQUIRED)
 find_package(rviz_ogre_vendor REQUIRED)
 find_package(rviz_rendering REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
@@ -63,6 +64,7 @@ set(dependencies
   rviz_rendering
   std_msgs
   tf2_geometry_msgs
+  diagnostic_msgs
 )
 
 ament_target_dependencies(${library_name}
@@ -101,7 +103,7 @@ install(
   INCLUDES DESTINATION include
 )
 
-install(TARGETS 
+install(TARGETS
   battery_contingency_sim_node
   DESTINATION lib/${PROJECT_NAME}
   INCLUDES DESTINATION include
@@ -114,6 +116,7 @@ install(
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+  find_package(ament_lint_common REQUIRED)
   ament_lint_auto_find_test_dependencies()
 endif()
 

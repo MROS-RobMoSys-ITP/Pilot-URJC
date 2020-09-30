@@ -17,6 +17,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QVBoxLayout>
 
+#include <string>
 #include <memory>
 #include <vector>
 #include <utility>
@@ -59,14 +60,20 @@ MROSContingenciesPanel::MROSContingenciesPanel(QWidget * parent)
 
   initial_ = new QState();
   initial_->setObjectName("initial");
-  initial_->assignProperty(laser_contingency_button_, "text", "Inject all-zero laser msg in the system");
+  initial_->assignProperty(
+    laser_contingency_button_,
+    "text",
+    "Inject all-zero laser msg in the system");
   initial_->assignProperty(laser_contingency_button_, "toolTip", laser_contingency_msg);
   initial_->assignProperty(laser_contingency_button_, "enabled", true);
 
   // State entered when navigate_to_pose action is not active
   idle_ = new QState();
   idle_->setObjectName("idle");
-  idle_->assignProperty(laser_contingency_button_, "text", "Inject all-zero laser msg in the system");
+  idle_->assignProperty(
+    laser_contingency_button_,
+    "text",
+    "Inject all-zero laser msg in the system");
   idle_->assignProperty(laser_contingency_button_, "enabled", false);
 
   QObject::connect(initial_, SIGNAL(exited()), this, SLOT(onStartup()));
@@ -92,10 +99,11 @@ MROSContingenciesPanel::MROSContingenciesPanel(QWidget * parent)
 
   client_laser_ = client_node_->create_client<lifecycle_msgs::srv::ChangeState>(
     change_state_service_name);
-  pub_ = client_node_->create_publisher<sensor_msgs::msg::LaserScan>("/scan", rclcpp::SensorDataQoS());
+  pub_ = client_node_->create_publisher<sensor_msgs::msg::LaserScan>(
+    "/scan",
+    rclcpp::SensorDataQoS());
 
   num_injected_msgs_ = 10;
-
 }
 
 MROSContingenciesPanel::~MROSContingenciesPanel()
@@ -112,8 +120,7 @@ void
 MROSContingenciesPanel::onStartup()
 {
   int i = 0;
-  while (i < num_injected_msgs_)
-  {
+  while (i < num_injected_msgs_) {
     sensor_msgs::msg::LaserScan msg;
     pub_->publish(msg);
     i++;

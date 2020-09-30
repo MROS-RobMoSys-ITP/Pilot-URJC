@@ -30,35 +30,11 @@ set(dependencies
   behaviortree_cpp_v3
 )
 
-add_library(pilot_behavior_get_order_bt_node SHARED
-  src/behavior_tree_nodes/GetOrder.cpp
-)
-list(APPEND plugin_libs pilot_behavior_get_order_bt_node)
 
-add_library(pilot_behavior_navigate_to_barman_bt_node SHARED
-  src/behavior_tree_nodes/NavigateToBarman.cpp
+add_library(pilot_behavior_navigate_to_wp_bt_node SHARED
+  src/behavior_tree_nodes/NavigateToWp.cpp
 )
-list(APPEND plugin_libs pilot_behavior_navigate_to_barman_bt_node)
-
-add_library(pilot_behavior_interact_with_barman_bt_node SHARED
-  src/behavior_tree_nodes/InteractWithBarman.cpp
-)
-list(APPEND plugin_libs pilot_behavior_interact_with_barman_bt_node)
-
-add_library(pilot_behavior_navigate_to_client_bt_node SHARED
-  src/behavior_tree_nodes/NavigateToClient.cpp
-)
-list(APPEND plugin_libs pilot_behavior_navigate_to_client_bt_node)
-
-add_library(pilot_behavior_deliver_order_bt_node SHARED
-  src/behavior_tree_nodes/DeliverOrder.cpp
-)
-list(APPEND plugin_libs pilot_behavior_deliver_order_bt_node)
-
-add_library(pilot_behavior_check_order_bt_node SHARED
-  src/behavior_tree_nodes/CheckOrder.cpp
-)
-list(APPEND plugin_libs pilot_behavior_check_order_bt_node)
+list(APPEND plugin_libs pilot_behavior_navigate_to_wp_bt_node)
 
 foreach(bt_plugin ${plugin_libs})
   ament_target_dependencies(${bt_plugin} ${dependencies})
