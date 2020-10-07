@@ -30,14 +30,15 @@ from rqt_gui_py.plugin import Plugin
 from std_msgs.msg import Float32, Header
 from system_modes.srv import ChangeMode
 from rcl_interfaces.msg import Log
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
 class Metacontroller(Node):
     def __init__(self):
         super().__init__('metacontroller')
-        self.rosout_sub_ = self.create_subscription(
-          Log,
-          "/rosout",
-          self.rosout_cb, 1)
+        self.diagnostics_sub_ = self.create_subscription(
+          DiagnosticArray,
+          "/metacontroller/diagnostics",
+          self.diagnostics_cb, 1)
         self.current_mode = 'NORMAL'
     def change_mode(self, node_name, mode_name):
         cli = self.create_client(ChangeMode, '/'+node_name+'/change_mode')
@@ -54,12 +55,14 @@ class Metacontroller(Node):
         else:
             self.get_logger().error('Exception while calling service: %r' % future.exception())
 
-    def rosout_cb(self, msg):
-        if msg.level == 40 and msg.function == "on_error":
-            if msg.name == "battery_contingency_sim" and self.current_mode == 'NORMAL':
-                self.current_mode = 'ENERGY_SAVING'
-                self.get_logger().info('Battery low detected, solving contingency...')
-                self.change_mode("pilot", self.current_mode)
+    def diagnostics_cb(self, msg):
+        for status in msg.status:
+            if status.message == "QA status":
+                for value in status.values:
+                    if value.key == "energy" and float(value.value) < 15.0 and self.current_mode == 'NORMAL':
+                        self.current_mode = 'ENERGY_SAVING'
+                        self.get_logger().info('Battery low detected, solving contingency...')
+                        self.change_mode("pilot", self.current_mode)
 
 def main(args=None):
     rclpy.init(args=args)
