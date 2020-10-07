@@ -11,6 +11,8 @@
 
   <depend>rclcpp</depend>
   <depend>rclpy</depend>
+  <depend>ros2launch</depend>
+  <depend>nav2_bringup</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
