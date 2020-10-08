@@ -127,7 +127,7 @@ This pilot has been tested on different platforms. Above we show how to run the 
       ros2 launch pilot_urjc_bringup tb3_sim_launch.py
     ```
   **After the last command, the Gazebo simulator is running in background. Don't worry if no window is opened.**
-2. **Demo launcher**
+2. **TB3 navigation launcher**
 
     This launcher includes rviz, nav2, amcl, map-server, **[system-modes](https://github.com/micro-ROS/system_modes)**, etc.
     The **system_modes mode_manager** takes the modes description from `params/pilot_modes.yaml`.
@@ -136,7 +136,7 @@ This pilot has been tested on different platforms. Above we show how to run the 
       export TURTLEBOT3_MODEL=${TB3_MODEL}
       ros2 launch pilot_urjc_bringup nav2_turtlebot3_launch.py
     ```
-  **RVIz opens, and the navigation system is waiting for the activation of the laser_driver. It is not necessary to set an initial robot position with the 2D Pose Estimate tool. When the laser_driver is up, the pose will be set automatically.**
+  **RVIz opens, and the navigation system is waiting for the activation of the laser_driver. This activation will be made automatically by the dummy_metacontroller in [Launching Pilot-URJC](#launching-pilot-urjc) step. It is not necessary to set an initial robot position with the 2D Pose Estimate tool. When the laser_driver is up, the pose will be set automatically.**
 
 ### Launching in simulated turtlebot2
 
@@ -207,20 +207,23 @@ http://wiki.ros.org/melodic/Installation/Ubuntu
 
 1. **A dummy metacontroller**
 
-    With this tool, you can simulate different contingency scenarios.
+    With this tool, you can simulate different reconfiguration scenarios. **By now, the battery contingency is the only one supported. The laser failure is managed by the system_modes package**
 
     ```console
       ros2 run metacontroller_pilot metacontroller
     ```
     
-**Setting the NORMAL mode, the laser_driver goes to active mode, and everything starts. RVIz shows the local and global costmaps, the laser measures, and the transform tree.**
+**When the metacontroller is bringing up, the laser_driver goes to active mode, and everything starts. RVIz shows the local and global costmaps, the laser measures, and the transform tree.**
 
-With all the above, we will have enough to test some navigation actions and experiment changing the current mode and seeing how this change affects the navigation.
-
-Finally, we will launch the pilot.
+Finally, we launch the pilot.
 
 2. **Pilot Behavior**
 
     ```console
       ros2 launch pilot_behavior pilot_urjc_launch.py
     ```
+    **The robot patrols the scenario and its battery is draining.**
+    
+3. **Laser failure sim**
+![rviz_cont_tool](resources/contingency_tool.png)
+With this RVIz tool, you can simulate a laser failure and its consequences.

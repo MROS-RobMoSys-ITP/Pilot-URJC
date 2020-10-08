@@ -16,12 +16,14 @@ pilot:
         controller_server: active
         pointcloud_to_laser: active
         laser_resender: active
+      # [Default SkillRealization]
       NORMAL:
         amcl: active
         bt_navigator: active
         controller_server: active
         pointcloud_to_laser: inactive
         laser_resender: active
+      # [SkillRealization RGBD camera]
       DEGRADED:
         amcl: active.DEGRADED
         bt_navigator: active
@@ -46,6 +48,7 @@ pilot:
         controller_server: active.SLOW
         pointcloud_to_laser: inactive
         laser_resender: active
+    # [Rule to switch]
     rules:
       degrade_from_NORMAL:
         if_target: active.NORMAL
@@ -59,9 +62,19 @@ amcl:
       __DEFAULT__:
         ros__parameters:
           transform_tolerance: 0.2
+          alpha1: 0.2
+          alpha2: 0.2
+          alpha3: 0.2
+          alpha4: 0.2
+          alpha5: 0.2
       DEGRADED: 
         ros__parameters:
-          transform_tolerance: 2.5 
+          transform_tolerance: 2.5
+          alpha1: 0.05
+          alpha2: 0.05
+          alpha3: 0.05
+          alpha4: 0.05
+          alpha5: 0.05
 
 bt_navigator:
   ros__parameters:
@@ -99,21 +112,25 @@ controller_server:
     modes:
       __DEFAULT__:
         ros__parameters:
-          FollowPath.max_vel_x: 0.26
-          FollowPath.max_vel_theta: 1.0
+          FollowPath.max_vel_x: 0.4
+          FollowPath.max_speed_xy: 0.4
+          FollowPath.max_vel_theta: 1.25
           FollowPath.transform_tolerance: 0.2
       SLOW:
         ros__parameters:
           FollowPath.max_vel_x: 0.1
-          FollowPath.max_vel_theta: 0.4
+          FollowPath.max_speed_xy: 0.1
+          FollowPath.max_vel_theta: 0.5
           FollowPath.transform_tolerance: 0.2
       FAST:
         ros__parameters:
           FollowPath.max_vel_x: 0.5
+          FollowPath.max_speed_xy: 0.5
           FollowPath.max_vel_theta: 1.5
           FollowPath.transform_tolerance: 0.2
       DEGRADED: 
         ros__parameters:
           FollowPath.max_vel_x: 0.1
-          FollowPath.max_vel_theta: 0.4
+          FollowPath.max_speed_xy: 0.1
+          FollowPath.max_vel_theta: 0.5
           FollowPath.transform_tolerance: 2.5
