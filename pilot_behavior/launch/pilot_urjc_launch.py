@@ -24,16 +24,6 @@ def generate_launch_description():
         output='screen',
         parameters=[])
 
-    rqt_bica_graph_cmd = Node(
-        package='rqt_gui',
-        node_executable='rqt_gui',
-        node_name='bica_rqt_graph',
-        output='screen',
-        parameters=[{'-s': 'bica_rqt_graph'}])
-
     ld = LaunchDescription()
-
     ld.add_action(pilot_behavior_cmd)
-    ld.add_action(rqt_bica_graph_cmd)
-
     return ld

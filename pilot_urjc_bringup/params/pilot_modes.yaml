@@ -22,12 +22,13 @@ pilot:
         controller_server: active
         pointcloud_to_laser: inactive
         laser_resender: active
+      # [SkillRealization RGBD camera]
       DEGRADED:
         amcl: active.DEGRADED
         bt_navigator: active
         controller_server: active.DEGRADED
         pointcloud_to_laser: active
-        laser_resender: inactive
+        laser_resender: unconfigured
       f1_v1_r2:
         amcl: active
         bt_navigator: active.SIMPLE
@@ -46,6 +47,12 @@ pilot:
         controller_server: active.SLOW
         pointcloud_to_laser: inactive
         laser_resender: active
+    # [Rule to switch]
+    rules:
+      degrade_from_NORMAL:
+        if_target: active.NORMAL
+        if_part: [laser_resender, unconfigured]
+        new_target: active.DEGRADED
 
 amcl:
   ros__parameters:
@@ -54,9 +61,19 @@ amcl:
       __DEFAULT__:
         ros__parameters:
           transform_tolerance: 0.2
-      DEGRADED:
+          alpha1: 0.2
+          alpha2: 0.2
+          alpha3: 0.2
+          alpha4: 0.2
+          alpha5: 0.2
+      DEGRADED: 
         ros__parameters:
           transform_tolerance: 2.5
+          alpha1: 0.05
+          alpha2: 0.05
+          alpha3: 0.05
+          alpha4: 0.05
+          alpha5: 0.05
 
 bt_navigator:
   ros__parameters:
@@ -78,7 +95,7 @@ laser_resender:
     modes:
       __DEFAULT__:
         ros__parameters:
-          laser_resender_test: "0"
+          node_name: "laser_resender"
 
 pointcloud_to_laser:
   ros__parameters:
@@ -86,7 +103,7 @@ pointcloud_to_laser:
     modes:
       __DEFAULT__:
         ros__parameters:
-          pointcloud_to_laser_test: "0"
+          node_name: "pointcloud_to_laser"
 
 controller_server:
   ros__parameters:
@@ -94,21 +111,25 @@ controller_server:
     modes:
       __DEFAULT__:
         ros__parameters:
-          FollowPath.max_vel_x: 0.26
-          FollowPath.max_vel_theta: 1.0
+          FollowPath.max_vel_x: 0.4
+          FollowPath.max_speed_xy: 0.4
+          FollowPath.max_vel_theta: 1.25
           FollowPath.transform_tolerance: 0.2
       SLOW:
         ros__parameters:
           FollowPath.max_vel_x: 0.1
-          FollowPath.max_vel_theta: 0.4
+          FollowPath.max_speed_xy: 0.1
+          FollowPath.max_vel_theta: 0.5
           FollowPath.transform_tolerance: 0.2
       FAST:
         ros__parameters:
           FollowPath.max_vel_x: 0.5
+          FollowPath.max_speed_xy: 0.5
           FollowPath.max_vel_theta: 1.5
           FollowPath.transform_tolerance: 0.2
       DEGRADED:
         ros__parameters:
           FollowPath.max_vel_x: 0.1
-          FollowPath.max_vel_theta: 0.4
+          FollowPath.max_speed_xy: 0.1
+          FollowPath.max_vel_theta: 0.5
           FollowPath.transform_tolerance: 2.5

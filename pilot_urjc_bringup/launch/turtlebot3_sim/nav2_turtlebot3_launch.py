@@ -65,7 +65,7 @@ def generate_launch_description():
         description='Whether to apply a namespace to the navigation stack')
     declare_map_yaml_cmd = DeclareLaunchArgument(
         'map',
-        default_value=os.path.join(nav2_bringup_dir, 'maps', 'turtlebot3_world.yaml'),
+        default_value=os.path.join(pilot_dir, 'maps', 'sim', 'tb3_house', 'map.yaml'),
         description='Full path to map file to load')
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(
@@ -91,7 +91,7 @@ def generate_launch_description():
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
         'rviz_config_file',
-        default_value=os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz'),
+        default_value=os.path.join(pilot_dir, 'rviz', 'nav2_default_view.rviz'),
         description='Full path to the RVIZ config file to use')
 
     declare_use_rviz_cmd = DeclareLaunchArgument(

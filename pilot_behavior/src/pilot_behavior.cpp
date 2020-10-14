@@ -30,6 +30,7 @@
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "ros2_knowledge_graph/GraphNode.hpp"
+#include "nav2_util/geometry_utils.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -42,19 +43,52 @@ int main(int argc, char ** argv)
 
   BT::BehaviorTreeFactory factory;
   BT::SharedLibrary loader;
-  factory.registerFromPlugin(loader.getOSName("pilot_behavior_deliver_order_bt_node"));
-  factory.registerFromPlugin(loader.getOSName("pilot_behavior_interact_with_barman_bt_node"));
-  factory.registerFromPlugin(loader.getOSName("pilot_behavior_get_order_bt_node"));
-  factory.registerFromPlugin(loader.getOSName("pilot_behavior_navigate_to_barman_bt_node"));
-  factory.registerFromPlugin(loader.getOSName("pilot_behavior_navigate_to_client_bt_node"));
-  factory.registerFromPlugin(loader.getOSName("pilot_behavior_check_order_bt_node"));
-
+  factory.registerFromPlugin(loader.getOSName("pilot_behavior_navigate_to_wp_bt_node"));
+  
   auto blackboard = BT::Blackboard::create();
   auto node = rclcpp::Node::make_shared("pilot_node");
   auto graph = std::make_shared<ros2_knowledge_graph::GraphNode>("pilot_graph");
   graph->start();
   blackboard->set("node", node);
-  blackboard->set("pilot_graph", graph);
+  blackboard->set("pilot_graph", graph);  
+
+  std::unordered_map<std::string, geometry_msgs::msg::Pose> wp_map;
+  geometry_msgs::msg::Pose wp;
+  wp.position.x = 1.0;
+  wp.position.y = -1.0;
+  wp.orientation = nav2_util::geometry_utils::orientationAroundZAxis(M_PI_2);
+  wp_map.insert(std::pair<std::string, geometry_msgs::msg::Pose>("wp_1", wp));
+  wp.position.x = -1.0;
+  wp.position.y = 1.0;
+  wp.orientation = nav2_util::geometry_utils::orientationAroundZAxis(M_PI);
+  wp_map.insert(std::pair<std::string, geometry_msgs::msg::Pose>("wp_2", wp));
+
+  wp.position.x = -3.5;
+  wp.position.y = 1.0;
+  wp.orientation = nav2_util::geometry_utils::orientationAroundZAxis(M_PI);
+  wp_map.insert(std::pair<std::string, geometry_msgs::msg::Pose>("wp_3", wp));
+
+  wp.position.x = -6.25;
+  wp.position.y = 2.66;
+  wp.orientation = nav2_util::geometry_utils::orientationAroundZAxis(-M_PI_2);
+  wp_map.insert(std::pair<std::string, geometry_msgs::msg::Pose>("wp_4", wp));
+
+  wp.position.x = -6.40;
+  wp.position.y = -2.81;
+  wp.orientation = nav2_util::geometry_utils::orientationAroundZAxis(-M_PI_2);
+  wp_map.insert(std::pair<std::string, geometry_msgs::msg::Pose>("wp_5", wp));
+
+  wp.position.x = -6.25;
+  wp.position.y = 2.66;
+  wp.orientation = nav2_util::geometry_utils::orientationAroundZAxis(M_PI_2);
+  wp_map.insert(std::pair<std::string, geometry_msgs::msg::Pose>("wp_6", wp));
+
+  wp.position.x = -1.0;
+  wp.position.y = 1.0;
+  wp.orientation = nav2_util::geometry_utils::orientationAroundZAxis(0.0);
+  wp_map.insert(std::pair<std::string, geometry_msgs::msg::Pose>("wp_7", wp));
+
+  blackboard->set("wp_map", wp_map);  
 
   BT::Tree tree = factory.createTreeFromFile(xml_file, blackboard);
 

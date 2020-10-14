@@ -31,6 +31,7 @@ import lifecycle_msgs.msg
 def generate_launch_description():
     # Get the launch directory
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
+    pilot_bringup_dir = get_package_share_directory('pilot_urjc_bringup')
     launch_dir = os.path.join(nav2_bringup_dir, 'launch')
 
     # Create the launch configuration variables
@@ -69,7 +70,7 @@ def generate_launch_description():
         #              https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/91
         # default_value=os.path.join(get_package_share_directory('turtlebot3_gazebo'),
         #                            'worlds/turtlebot3_worlds/waffle.model'),
-        default_value=os.path.join(nav2_bringup_dir, 'worlds', 'waffle.model'),
+        default_value=os.path.join(pilot_bringup_dir, 'worlds', 'waffle_house.model'),
         description='Full path to world model file to load')
 
     # Specify the actions
@@ -95,6 +96,7 @@ def generate_launch_description():
         parameters=[{'use_sim_time': use_sim_time}],
         remappings=remappings,
         arguments=[urdf])
+    
 
     pcl2laser_cmd = LifecycleNode(
         package='pointcloud_to_laserscan', 
@@ -129,6 +131,12 @@ def generate_launch_description():
         package='laser_resender',
         executable='laser_resender_node',
         output='screen')
+
+    battery_contingency_cmd = Node(
+        name='battery_contingency_sim',
+        package='mros_contingencies_sim',
+        executable='battery_contingency_sim_node',
+        output='screen')
     
     emit_event_to_request_that_laser_resender_configure_transition = EmitEvent(
         event=ChangeState(
@@ -153,6 +161,7 @@ def generate_launch_description():
     ld.add_action(start_robot_state_publisher_cmd)
     ld.add_action(pcl2laser_cmd)
     ld.add_action(laser_resender_cmd)
+    ld.add_action(battery_contingency_cmd)
     ld.add_action(emit_event_to_request_that_pcl2laser_configure_transition)
     ld.add_action(emit_event_to_request_that_laser_resender_configure_transition)
     return ld

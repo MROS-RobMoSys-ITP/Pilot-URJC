@@ -27,12 +27,12 @@ amcl:
     recovery_alpha_slow: 0.0
     resample_interval: 1
     robot_model_type: "differential"
-    save_pose_rate: 0.5
+    save_pose_rate: 0.25
     sigma_hit: 0.2
     tf_broadcast: true
     transform_tolerance: 2.0
-    update_min_a: 0.2
-    update_min_d: 0.25
+    update_min_a: 0.1
+    update_min_d: 0.15
     z_hit: 0.5
     z_max: 0.05
     z_rand: 0.5
@@ -40,10 +40,11 @@ amcl:
     scan_topic: /mros_scan
     set_initial_pose: True
     initial_pose:
-      x: -2.0
-      y: -0.457
+      x: -1.0  # Default world - x: -2.0
+      y: -3.0  #                 y: -0.457
       z: 0.0
       yaw: 0.0
+      initial_pose:
 
 amcl_map_client:
   ros__parameters:
@@ -103,7 +104,7 @@ controller_server:
     # Progress checker parameters
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
-      required_movement_radius: 0.5
+      required_movement_radius: 0.25
       movement_time_allowance: 10.0
     # Goal checker parameters
     goal_checker:
@@ -117,11 +118,11 @@ controller_server:
       debug_trajectory_details: True
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 0.26
+      max_vel_x: 0.4
       max_vel_y: 0.0
-      max_vel_theta: 1.0
+      max_vel_theta: 1.25
       min_speed_xy: 0.0
-      max_speed_xy: 0.26
+      max_speed_xy: 0.4
       min_speed_theta: 0.0
       # Add high threshold velocity for turtlebot 3 issue.
       # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
@@ -134,11 +135,11 @@ controller_server:
       vx_samples: 20
       vy_samples: 5
       vtheta_samples: 20
-      sim_time: 1.7
+      sim_time: 1.9
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.3
+      xy_goal_tolerance: 0.1
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: True
       stateful: True

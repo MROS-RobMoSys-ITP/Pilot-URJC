@@ -1,0 +1,9 @@
+<library path="mros_contingencies_sim">
+
+  <class name="mros_contingencies_sim/MROS Contingencies Panel"
+         type="nav2_rviz_plugins::MROSContingenciesPanel"
+         base_class_type="rviz_common::Panel">
+    <description>The MROS Contingencies rviz panel.</description>
+  </class>
+
+</library>

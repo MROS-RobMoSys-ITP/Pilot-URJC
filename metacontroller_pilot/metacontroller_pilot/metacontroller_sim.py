@@ -1,38 +1,20 @@
 #!/usr/bin/env python
 
-# Software License Agreement (BSD License)
+# Copyright 2020 Intelligent Robotics Lab
 #
-# Copyright (c) 2020, Intelligent Robotics Core S.L.
-# All rights reserved.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-#  * Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-#  * Redistributions in binary form must reproduce the above
-#    copyright notice, this list of conditions and the following
-#    disclaimer in the documentation and/or other materials provided
-#    with the distribution.
-#  * Neither the name of Willow Garage, Inc. nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# Author: Lorena Bajo Rebollo - lorena.bajo@urjc.es
+# Author: jginesclavero - jonatan.gines@urjc.es
 
 import argparse
 import functools
@@ -47,66 +29,48 @@ from rclpy.node import Node
 from rqt_gui_py.plugin import Plugin
 from std_msgs.msg import Float32, Header
 from system_modes.srv import ChangeMode
-
+from rcl_interfaces.msg import Log
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
 class Metacontroller(Node):
-    def __init__(self, node_name, mode_name):
+    def __init__(self):
         super().__init__('metacontroller')
+        self.diagnostics_sub_ = self.create_subscription(
+          DiagnosticArray,
+          "/metacontroller/diagnostics",
+          self.diagnostics_cb, 1)
+        self.current_mode = 'NORMAL'
+    def change_mode(self, node_name, mode_name):
         cli = self.create_client(ChangeMode, '/'+node_name+'/change_mode')
         while not cli.wait_for_service(timeout_sec=1.0):
             print('service not available, waiting again...')
         req = ChangeMode.Request()
+        req.node_name = node_name
         req.mode_name = mode_name
 
         future = cli.call_async(req)
         rclpy.spin_until_future_complete(self, future)
         if future.result() is not None:
             self.get_logger().info('Mode change completed')
-            sys.exit()
         else:
             self.get_logger().error('Exception while calling service: %r' % future.exception())
 
+    def diagnostics_cb(self, msg):
+        for status in msg.status:
+            if status.message == "QA status":
+                for value in status.values:
+                    if value.key == "energy" and float(value.value) < 15.0 and self.current_mode == 'NORMAL':
+                        self.current_mode = 'ENERGY_SAVING'
+                        self.get_logger().info('Battery low detected, solving contingency...')
+                        self.change_mode("pilot", self.current_mode)
+
 def main(args=None):
-    print ("------------------------------")
-    print ("Specify the option number:")
-    print ("------------------------------")
-    print (" 0) Normal")
-    print (" 1) Degraded (Navigate with pointcloud)")
-    print (" 2) Performance")
-    print (" 3) Energy saving")
-    print (" 4) Slow")
-    print ("------------------------------")
-   
-    option = input()
-    if option == "0":
-        print ("Normal") 
-        mode_name = 'NORMAL'
-    elif option == "1":
-        print ("Degraded (Navigate with pointcloud).") 
-        mode_name = 'DEGRADED'
-    elif option == "2":
-        print ("Performance") 
-        mode_name = 'PERFORMANCE'
-    elif option == "3":
-        print ("Energy saving.") 
-        mode_name = 'ENERGY_SAVING'
-    elif option == "4":
-        print ("Slow.")
-        mode_name = 'SLOW'
-    else:
-        print("Invalid option.")
-        sys.exit()
-
     rclpy.init(args=args)
-    node_name = "pilot"
-    node = Metacontroller(node_name, mode_name)
-
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-
-    node.destroy_node()
+    node = Metacontroller()
+    node.change_mode("pilot", '__DEFAULT__')
+    node.change_mode("pilot", 'NORMAL')
+    rclpy.spin(node)
+    node.destroy()
     rclpy.shutdown()
 
 if __name__ == '__main__':
