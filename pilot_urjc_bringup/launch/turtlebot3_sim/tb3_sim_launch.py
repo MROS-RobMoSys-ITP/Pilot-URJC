@@ -62,7 +62,7 @@ def generate_launch_description():
         description='Whether to start the robot state publisher')
     declare_simulator_cmd = DeclareLaunchArgument(
         'headless',
-        default_value='True',
+        default_value='False',
         description='Whether to execute gzclient)')
     declare_world_cmd = DeclareLaunchArgument(
         'world',
@@ -179,5 +179,5 @@ def generate_launch_description():
     ld.add_action(battery_contingency_cmd)
     ld.add_action(emit_event_to_request_that_pcl2laser_configure_transition)
     ld.add_action(emit_event_to_request_that_laser_resender_configure_transition)
-    
+
     return ld
