@@ -39,11 +39,10 @@ private:
   void publish_diagnostic(std::string value);
 
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr amcl_sub_;
-  rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr battery_pub_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagnostics_pub_;
   geometry_msgs::msg::Pose last_pose_;
   float battery_level_;
-  const float BATTERY_CONSUMPTION = 2.0;
+  const float BATTERY_CONSUMPTION = 0.02;
 };
 
 }  // namespace mros_contingencies_sim

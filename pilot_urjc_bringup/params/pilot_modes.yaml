@@ -49,8 +49,8 @@ pilot:
         laser_resender: active
     # [Rule to switch]
     rules:
-      degrade_from_NORMAL:
-        if_target: active.NORMAL
+      degrade_from_normal:
+        if_target: active.f3_v3_r1
         if_part: [laser_resender, unconfigured]
         new_target: active.DEGRADED
 

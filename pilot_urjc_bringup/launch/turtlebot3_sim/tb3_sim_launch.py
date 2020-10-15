@@ -145,6 +145,17 @@ def generate_launch_description():
         )
     )
 
+    shm_model_path = (get_package_share_directory('pilot_urjc_bringup') +
+        '/params/pilot_modes.yaml')
+
+    # Start as a normal node is currently not possible.
+    # Path to SHM file should be passed as a ROS parameter.
+    mode_manager_node = Node(
+        package='system_modes',
+        executable='mode_manager',
+        parameters=[{'modelfile': shm_model_path}],
+        output='screen')
+
     ld = LaunchDescription()
 
     # Declare the launch options
@@ -159,9 +170,14 @@ def generate_launch_description():
     ld.add_action(start_gazebo_server_cmd)
     ld.add_action(start_gazebo_client_cmd)
     ld.add_action(start_robot_state_publisher_cmd)
+
+    # Add system modes manager
+    ld.add_action(mode_manager_node)
+
     ld.add_action(pcl2laser_cmd)
     ld.add_action(laser_resender_cmd)
     ld.add_action(battery_contingency_cmd)
     ld.add_action(emit_event_to_request_that_pcl2laser_configure_transition)
     ld.add_action(emit_event_to_request_that_laser_resender_configure_transition)
+    
     return ld

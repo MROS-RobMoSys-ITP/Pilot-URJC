@@ -32,13 +32,10 @@ BatteryContingency::BatteryContingency(const std::string & name)
       &BatteryContingency::amclCallback,
       this,
       _1));
-  battery_pub_ = create_publisher<std_msgs::msg::Float64>(
-    "/robot/battery",
-    rclcpp::QoS(10));
   diagnostics_pub_ = create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
-    "/metacontroller/diagnostics",
+    "/diagnostics",
     rclcpp::QoS(10));
-  battery_level_ = 100.0;
+  battery_level_ = 0.0;
 }
 
 float BatteryContingency::calculateDistance(
@@ -88,9 +85,9 @@ void BatteryContingency::amclCallback(
     setOldposition(msg->pose.pose);
   }
 
-  battery_level_ = battery_level_ - distance * BATTERY_CONSUMPTION;
-  if (battery_level_ < 0.0) {
-    battery_level_ = 0.0;
+  battery_level_ = battery_level_ + distance * BATTERY_CONSUMPTION;
+  if (battery_level_ > 1.0) {
+    battery_level_ = 1.0;
   }
   publish_diagnostic(std::to_string(battery_level_));
 }

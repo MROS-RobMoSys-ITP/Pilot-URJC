@@ -122,16 +122,7 @@ def generate_launch_description():
                           'autostart': autostart,
                           'cmd_vel_topic': cmd_vel_topic}.items())
 
-    shm_model_path = (get_package_share_directory('pilot_urjc_bringup') +
-        '/params/pilot_modes.yaml')
-
-    # Start as a normal node is currently not possible.
-    # Path to SHM file should be passed as a ROS parameter.
-    mode_manager_node = Node(
-        package='system_modes',
-        executable='mode_manager',
-        parameters=[{'modelfile': shm_model_path}],
-        output='screen')
+    
 
     # Create the launch description and populate
     ld = LaunchDescription()
@@ -154,8 +145,7 @@ def generate_launch_description():
     # Add the actions to launch all of the navigation nodes
     ld.add_action(bringup_cmd)
 
-    # Add system modes manager
-    ld.add_action(mode_manager_node)
+   
 
 
     return ld
