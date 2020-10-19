@@ -37,13 +37,13 @@ pilot:
         laser_resender: active
       f1_v1_r3:
         amcl: active
-        bt_navigator: active.LOW_BATTERY
+        bt_navigator: active
         controller_server: active.SLOW
         pointcloud_to_laser: inactive
         laser_resender: active
       f1_v1_r1:
         amcl: active
-        bt_navigator: active
+        bt_navigator: active.LOW_BATTERY
         controller_server: active.SLOW
         pointcloud_to_laser: inactive
         laser_resender: active
@@ -51,6 +51,10 @@ pilot:
     rules:
       degrade_from_normal:
         if_target: active.f3_v3_r1
+        if_part: [laser_resender, unconfigured]
+        new_target: active.DEGRADED
+      degrade_from_low_battery:
+        if_target: active.f1_v1_r1
         if_part: [laser_resender, unconfigured]
         new_target: active.DEGRADED
 
