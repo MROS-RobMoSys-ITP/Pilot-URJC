@@ -62,7 +62,7 @@ def generate_launch_description():
         description='Whether to start the robot state publisher')
     declare_simulator_cmd = DeclareLaunchArgument(
         'headless',
-        default_value='False',
+        default_value='True',
         description='Whether to execute gzclient)')
     declare_world_cmd = DeclareLaunchArgument(
         'world',
@@ -138,6 +138,17 @@ def generate_launch_description():
         executable='battery_contingency_sim_node',
         output='screen')
     
+    components_file_path = (get_package_share_directory('mros_modes_observer') +
+        '/params/components.yaml')
+
+    # Start as a normal node is currently not possible.
+    # Path to SHM file should be passed as a ROS parameter.
+    modes_observer_node = Node(
+        package='mros_modes_observer',
+        executable='modes_observer_node',
+        parameters=[{'componentsfile': components_file_path}],
+        output='screen')
+    
     emit_event_to_request_that_laser_resender_configure_transition = EmitEvent(
         event=ChangeState(
             lifecycle_node_matcher=launch.events.matches_action(laser_resender_cmd),
@@ -173,6 +184,9 @@ def generate_launch_description():
 
     # Add system modes manager
     ld.add_action(mode_manager_node)
+    
+    # Add system modes observer node
+    ld.add_action(modes_observer_node)
 
     ld.add_action(pcl2laser_cmd)
     ld.add_action(laser_resender_cmd)

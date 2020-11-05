@@ -48,11 +48,6 @@ pilot:
         pointcloud_to_laser: inactive
         laser_resender: active
     # [Rule to switch]
-    rules:
-      degrade_from_normal:
-        if_target: active.f_normal_mode
-        if_part: [laser_resender, unconfigured]
-        new_target: active.f_degraded_mode
 
 amcl:
   ros__parameters:
