@@ -141,8 +141,6 @@ def generate_launch_description():
     components_file_path = (get_package_share_directory('mros_modes_observer') +
         '/params/components.yaml')
 
-    # Start as a normal node is currently not possible.
-    # Path to SHM file should be passed as a ROS parameter.
     modes_observer_node = Node(
         package='mros_modes_observer',
         executable='modes_observer_node',

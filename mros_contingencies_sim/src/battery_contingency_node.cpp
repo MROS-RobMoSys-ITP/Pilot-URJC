@@ -32,10 +32,24 @@ BatteryContingency::BatteryContingency(const std::string & name)
       &BatteryContingency::amclCallback,
       this,
       _1));
+  odom_sub_ = create_subscription<nav_msgs::msg::Odometry>(
+    "/odom", rclcpp::QoS(10), std::bind(
+      &BatteryContingency::odomCallback,
+      this,
+      _1));
   diagnostics_pub_ = create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
     "/diagnostics",
     rclcpp::QoS(10));
-  battery_level_ = 0.0;
+  
+  std::chrono::milliseconds period(1000); 
+  publish_timer_ = create_wall_timer(std::chrono::duration_cast<std::chrono::nanoseconds>(period), std::bind(
+    &BatteryContingency::timerCallback, this));
+
+  battery_level_ = 1.0;
+  current_vel_= 0.0;
+  distance_= 0.0;
+  RCLCPP_INFO(this->get_logger(), "BatteryContingency class initialization completed!!");
+
 }
 
 float BatteryContingency::calculateDistance(
@@ -51,7 +65,7 @@ void BatteryContingency::setOldposition(geometry_msgs::msg::Pose current_pose)
   last_pose_ = current_pose;
 }
 
-void BatteryContingency::publish_diagnostic(std::string value)
+void BatteryContingency::publish_diagnostic(std::string key, std::string value)
 {
   diagnostic_msgs::msg::DiagnosticArray diagnostic_msg;
   std::vector<diagnostic_msgs::msg::DiagnosticStatus> diag_status;
@@ -61,7 +75,7 @@ void BatteryContingency::publish_diagnostic(std::string value)
 
   status_msg.level = diagnostic_msgs::msg::DiagnosticStatus::OK;
   diagnostic_msgs::msg::KeyValue key_value;
-  key_value.key = "energy";
+  key_value.key = key;
   key_value.value = value;
   key_values.push_back(key_value);
   status_msg.values = key_values;
@@ -71,25 +85,44 @@ void BatteryContingency::publish_diagnostic(std::string value)
   diagnostics_pub_->publish(diagnostic_msg);
 }
 
+void BatteryContingency::odomCallback(const nav_msgs::msg::Odometry::SharedPtr odom_msg)
+{
+  if (odom_msg->twist.twist.linear.x > current_vel_)
+  {
+    current_vel_ = odom_msg->twist.twist.linear.x;
+  }
+  
+}
+
+
+void BatteryContingency::timerCallback()
+{
+
+  battery_level_ = battery_level_ + distance_ * BATTERY_CONSUMPTION;
+  if (battery_level_ < 0.0) {
+    battery_level_ = 0.0;
+  }
+  publish_diagnostic(std::string("battery_level"), std::to_string(battery_level_));
+
+  float energy_comspumtion = current_vel_ * ENERGY_CONSUMPTION_FACTOR;
+  publish_diagnostic(std::string("energy"), std::to_string(energy_comspumtion));
+  current_vel_ = 0;
+
+}
+
 void BatteryContingency::amclCallback(
   const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg)
 {
-  float current_x, current_y, distance = 0.0;
+  float current_x, current_y;
   current_x = msg->pose.pose.position.x;
   current_y = msg->pose.pose.position.y;
   if (last_pose_.position.x != 0.0 && last_pose_.position.x != 0.0) {
-    distance = calculateDistance(
+    distance_ = calculateDistance(
       current_x, current_y, last_pose_.position.x, last_pose_.position.y);
     setOldposition(msg->pose.pose);
   } else {
     setOldposition(msg->pose.pose);
   }
-
-  battery_level_ = battery_level_ + distance * BATTERY_CONSUMPTION;
-  if (battery_level_ > 1.0) {
-    battery_level_ = 1.0;
-  }
-  publish_diagnostic(std::to_string(battery_level_));
 }
 
 }  // namespace mros_contingencies_sim
