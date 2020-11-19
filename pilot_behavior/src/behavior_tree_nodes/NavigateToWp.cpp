@@ -58,7 +58,7 @@ BT_REGISTER_NODES(factory)
     [](const std::string & name, const BT::NodeConfiguration & config)
     {
       return std::make_unique<pilot_behavior::NavigateToWp>(
-        name, "navigate_to_pose", config);
+        name, "metacontrol_navigate_to_pose", config);
     };
 
   factory.registerBuilder<pilot_behavior::NavigateToWp>(
