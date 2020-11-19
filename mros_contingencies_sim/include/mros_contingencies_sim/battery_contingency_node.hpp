@@ -16,12 +16,14 @@
 #define MROS_CONTINGENCIES_SIM__BATTERY_CONTINGENCY_NODE_HPP_
 
 #include <string>
-#include "rclcpp/rclcpp.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/pose.hpp"
-#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
-#include "std_msgs/msg/float64.hpp"
-#include "diagnostic_msgs/msg/diagnostic_array.hpp"
+#include <chrono>
+#include <rclcpp/rclcpp.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <std_msgs/msg/float64.hpp>
+#include <diagnostic_msgs/msg/diagnostic_array.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 
 namespace mros_contingencies_sim
 {
@@ -33,16 +35,23 @@ public:
 
 private:
   void amclCallback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg);
+  void odomCallback(const nav_msgs::msg::Odometry::SharedPtr odom_msg);
+  void timerCallback();
   float calculateDistance(
     float current_x, float current_y, float old_x, float old_y);
   void setOldposition(geometry_msgs::msg::Pose current_pose);
-  void publish_diagnostic(std::string value);
+  void publish_diagnostic(std::string key, std::string value);
 
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr amcl_sub_;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagnostics_pub_;
   geometry_msgs::msg::Pose last_pose_;
+  float current_vel_;
+  float distance_;
   float battery_level_;
-  const float BATTERY_CONSUMPTION = 0.02;
+  rclcpp::TimerBase::SharedPtr publish_timer_;
+  const float BATTERY_CONSUMPTION = -0.02;
+  const float ENERGY_CONSUMPTION_FACTOR = 1.17;
 };
 
 }  // namespace mros_contingencies_sim
