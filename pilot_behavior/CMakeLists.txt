@@ -15,6 +15,7 @@ find_package(ros2_knowledge_graph REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(behaviortree_cpp_v3 REQUIRED)
+find_package(mros2_msgs REQUIRED)
 
 include_directories(
   include
@@ -28,6 +29,7 @@ set(dependencies
   ament_index_cpp
   nav2_msgs
   behaviortree_cpp_v3
+  mros2_msgs
 )
 
 
@@ -35,6 +37,11 @@ add_library(pilot_behavior_navigate_to_wp_bt_node SHARED
   src/behavior_tree_nodes/NavigateToWp.cpp
 )
 list(APPEND plugin_libs pilot_behavior_navigate_to_wp_bt_node)
+
+add_library(pilot_behavior_recharge_bt_node SHARED
+  src/behavior_tree_nodes/Recharge.cpp
+)
+list(APPEND plugin_libs pilot_behavior_recharge_bt_node)
 
 foreach(bt_plugin ${plugin_libs})
   ament_target_dependencies(${bt_plugin} ${dependencies})
