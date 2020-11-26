@@ -42,7 +42,7 @@ void NavigateToWp::on_tick()
   goal_.qos_expected.objective_type = "f_navigate"; // should be mros_goal->qos_expected.objective_type = "f_navigate";
   diagnostic_msgs::msg::KeyValue energy_qos;
   energy_qos.key = "energy";
-  energy_qos.value = "0.5";
+  energy_qos.value = "0.3";
   diagnostic_msgs::msg::KeyValue safety_qos;
   safety_qos.key = "safety";
   safety_qos.value = "0.5";
@@ -52,19 +52,13 @@ void NavigateToWp::on_tick()
 
 void NavigateToWp::on_wait_for_result()
 {  
-  // check qos
-  for (auto qos_value : feedback_->qos_status.qos) {
-    RCLCPP_INFO(node_->get_logger(), "%s: %s", qos_value.key.c_str(), qos_value.value.c_str());
-    // qos_value only for test, we need to define a new qos with the battery lvl or read it from a topic.
-    if (qos_value.key == "energy" && std::stof(qos_value.value) > 0.4 && 
-        getInput<std::string>("goal").value() != "recharge_station") 
-    {
-      RCLCPP_ERROR(node_->get_logger(), "Not enough energy");
-      halt();
-      result_.code = rclcpp_action::ResultCode::ABORTED;
-      goal_result_available_ = true;
-    }
-      
+  // check selected_mode, f_energy_saving_mode means the robot needs battery.
+  if (feedback_->qos_status.selected_mode == "f_energy_saving_mode" && 
+      getInput<std::string>("goal").value() != "recharge_station") {
+    RCLCPP_ERROR(node_->get_logger(), "Not enough energy");
+    halt();
+    result_.code = rclcpp_action::ResultCode::ABORTED;
+    goal_result_available_ = true;
   }
 }
 

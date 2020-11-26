@@ -20,6 +20,7 @@
 
 #include "behaviortree_cpp_v3/behavior_tree.h"
 #include "behaviortree_cpp_v3/bt_factory.h"
+#include "std_srvs/srv/empty.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -51,6 +52,9 @@ public:
   }
 private:
   rclcpp::Node::SharedPtr node_;
+  rclcpp::Client<std_srvs::srv::Empty>::SharedPtr client_;
+  
+  void srv_call();
 };
 
 }  // namespace pilot_behavior

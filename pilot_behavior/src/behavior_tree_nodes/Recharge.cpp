@@ -16,6 +16,7 @@
 #include <memory>
 
 #include "pilot_behavior/behavior_tree_nodes/Recharge.hpp"
+using namespace std::chrono_literals;
 
 namespace pilot_behavior
 {
@@ -26,6 +27,7 @@ Recharge::Recharge(
 : BT::AsyncActionNode(action_name, conf)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
+  client_ = node_->create_client<std_srvs::srv::Empty>("battery_contingency/battery_charged");
 }
 
 BT::NodeStatus Recharge::tick()
@@ -33,10 +35,25 @@ BT::NodeStatus Recharge::tick()
   while(rclcpp::ok()) {
     RCLCPP_INFO(node_->get_logger(), "Recharging battery for 10 seconds");
     rclcpp::Rate(0.1).sleep();
+    srv_call();
     break;
   }
   RCLCPP_INFO(node_->get_logger(), "Battery fully recharged");
   return BT::NodeStatus::SUCCESS;
+}
+
+void Recharge::srv_call() 
+{
+  auto request = std::make_shared<std_srvs::srv::Empty::Request>();
+  while (!client_->wait_for_service(1s)) {
+    if (!rclcpp::ok()) {
+      RCLCPP_ERROR(node_->get_logger(), "Interrupted while waiting for the service. Exiting.");
+      return;
+    }
+    RCLCPP_INFO(node_->get_logger(), "service not available, waiting again...");
+  }
+
+  auto result = client_->async_send_request(request);
 }
 
 }  // namespace pilot_behavior

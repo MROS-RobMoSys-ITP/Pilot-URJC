@@ -19,7 +19,7 @@
 #include <memory>
 
 using namespace std::chrono_literals;
-using std::placeholders::_1;
+using namespace std::placeholders;
 
 namespace mros_contingencies_sim
 {
@@ -44,12 +44,20 @@ BatteryContingency::BatteryContingency(const std::string & name)
   std::chrono::milliseconds period(1000); 
   publish_timer_ = create_wall_timer(std::chrono::duration_cast<std::chrono::nanoseconds>(period), std::bind(
     &BatteryContingency::timerCallback, this));
-
+  battery_charged_= create_service<std_srvs::srv::Empty>("battery_contingency/battery_charged", std::bind(
+    &BatteryContingency::batteryCharged, this, _1, _2, _3));
   battery_level_ = 1.0;
   current_vel_= 0.0;
   distance_= 0.0;
   RCLCPP_INFO(this->get_logger(), "BatteryContingency class initialization completed!!");
 
+}
+void BatteryContingency::batteryCharged(
+  const std::shared_ptr<rmw_request_id_t>/*request_header*/,
+  const std::shared_ptr<std_srvs::srv::Empty::Request> /*request*/,
+  std::shared_ptr<std_srvs::srv::Empty::Response> /*response*/)
+{
+  battery_level_ = 1.0;
 }
 
 float BatteryContingency::calculateDistance(

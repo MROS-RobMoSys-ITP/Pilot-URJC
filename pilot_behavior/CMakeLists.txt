@@ -16,6 +16,7 @@ find_package(ament_index_cpp REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(behaviortree_cpp_v3 REQUIRED)
 find_package(mros2_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 
 include_directories(
   include
@@ -30,6 +31,7 @@ set(dependencies
   nav2_msgs
   behaviortree_cpp_v3
   mros2_msgs
+  std_srvs
 )
 
 
