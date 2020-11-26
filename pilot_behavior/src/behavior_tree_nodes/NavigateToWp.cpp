@@ -24,14 +24,12 @@ NavigateToWp::NavigateToWp(
   const std::string & xml_tag_name,
   const std::string & action_name,
   const BT::NodeConfiguration & conf)
-: BtActionNode<nav2_msgs::action::NavigateToPose>(xml_tag_name, action_name, conf)
+: BtActionNode<NavigateToPoseQos>(xml_tag_name, action_name, conf)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
-  
 }
 
-void
-NavigateToWp::on_tick()
+void NavigateToWp::on_tick()
 {
   auto wp_map = 
     config().blackboard->get<std::unordered_map<std::string, geometry_msgs::msg::Pose>>("wp_map");
@@ -39,12 +37,38 @@ NavigateToWp::on_tick()
   auto res = getInput<std::string>("goal").value();
   wp_ = wp_map[res];
   RCLCPP_INFO(node_->get_logger(), "Navigating to... [%s -- %f %f]",
-   res.c_str(), wp_.position.x, wp_.position.y);
+    res.c_str(), wp_.position.x, wp_.position.y);
   goal_.pose.pose = wp_;
+  goal_.qos_expected.objective_type = "f_navigate"; // should be mros_goal->qos_expected.objective_type = "f_navigate";
+  diagnostic_msgs::msg::KeyValue energy_qos;
+  energy_qos.key = "energy";
+  energy_qos.value = "0.5";
+  diagnostic_msgs::msg::KeyValue safety_qos;
+  safety_qos.key = "safety";
+  safety_qos.value = "0.5";
+  goal_.qos_expected.qos.push_back(energy_qos);
+  goal_.qos_expected.qos.push_back(safety_qos);
 }
 
-BT::NodeStatus
-NavigateToWp::on_success()
+void NavigateToWp::on_wait_for_result()
+{  
+  // check qos
+  for (auto qos_value : feedback_->qos_status.qos) {
+    RCLCPP_INFO(node_->get_logger(), "%s: %s", qos_value.key.c_str(), qos_value.value.c_str());
+    // qos_value only for test, we need to define a new qos with the battery lvl or read it from a topic.
+    if (qos_value.key == "energy" && std::stof(qos_value.value) > 0.4 && 
+        getInput<std::string>("goal").value() != "recharge_station") 
+    {
+      RCLCPP_ERROR(node_->get_logger(), "Not enough energy");
+      halt();
+      result_.code = rclcpp_action::ResultCode::ABORTED;
+      goal_result_available_ = true;
+    }
+      
+  }
+}
+
+BT::NodeStatus NavigateToWp::on_success()
 {
   return BT::NodeStatus::SUCCESS;
 }
@@ -58,7 +82,7 @@ BT_REGISTER_NODES(factory)
     [](const std::string & name, const BT::NodeConfiguration & config)
     {
       return std::make_unique<pilot_behavior::NavigateToWp>(
-        name, "metacontrol_navigate_to_pose", config);
+        name, "navigate_to_pose_qos", config);
     };
 
   factory.registerBuilder<pilot_behavior::NavigateToWp>(
