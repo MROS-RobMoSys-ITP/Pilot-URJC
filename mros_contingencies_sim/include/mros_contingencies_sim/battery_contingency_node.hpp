@@ -41,11 +41,12 @@ private:
   float calculateDistance(
     float current_x, float current_y, float old_x, float old_y);
   void setOldposition(geometry_msgs::msg::Pose current_pose);
-  void publish_diagnostic(std::string key, std::string value);
   void batteryCharged(
     const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<std_srvs::srv::Empty::Request> request,
     std::shared_ptr<std_srvs::srv::Empty::Response> response);
+  void publish_diagnostic(std::string key, std::string value, std::string message);
+
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr amcl_sub_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagnostics_pub_;
@@ -54,9 +55,10 @@ private:
   float current_vel_;
   float distance_;
   float battery_level_;
+  bool battery_failed_;
   rclcpp::TimerBase::SharedPtr publish_timer_;
   const float BATTERY_CONSUMPTION = -0.02;
-  const float ENERGY_CONSUMPTION_FACTOR = 1.17;
+  const float ENERGY_CONSUMPTION_FACTOR = 1.20;
 };
 
 }  // namespace mros_contingencies_sim
