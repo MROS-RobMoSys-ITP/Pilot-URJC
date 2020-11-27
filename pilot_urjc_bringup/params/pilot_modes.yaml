@@ -85,8 +85,8 @@ controller_server:
     modes:
       __DEFAULT__:
         ros__parameters:
-          FollowPath.max_vel_x: 0.4
-          FollowPath.max_speed_xy: 0.4
+          FollowPath.max_vel_x: 0.3
+          FollowPath.max_speed_xy: 0.3
           FollowPath.max_vel_theta: 1.25
           FollowPath.transform_tolerance: 0.2
       SLOW:

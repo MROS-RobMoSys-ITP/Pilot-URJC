@@ -41,12 +41,12 @@ BatteryContingency::BatteryContingency(const std::string & name)
     "/diagnostics",
     rclcpp::QoS(10));
   
-  std::chrono::milliseconds period(1000); 
+  std::chrono::milliseconds period(2000); 
   publish_timer_ = create_wall_timer(std::chrono::duration_cast<std::chrono::nanoseconds>(period), std::bind(
     &BatteryContingency::timerCallback, this));
   battery_charged_= create_service<std_srvs::srv::Empty>("battery_contingency/battery_charged", std::bind(
     &BatteryContingency::batteryCharged, this, _1, _2, _3));
-  battery_level_ = 1.0;
+  battery_level_ = 0.6;
   current_vel_= 0.0;
   distance_= 0.0;
   battery_failed_ = false;
@@ -134,7 +134,7 @@ void BatteryContingency::amclCallback(
   }
   else if(battery_level_ < 0.5 && !battery_failed_)
   {
-    publish_diagnostic(std::string("battery"), std::string("false"), std::string("Component status"));
+    publish_diagnostic(std::string("battery"), std::string("FALSE"), std::string("Component status"));
     battery_failed_ = true;
   }
   else if(battery_level_ > 0.8 && battery_failed_ )
