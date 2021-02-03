@@ -187,7 +187,8 @@ public:
           node_->get_logger(),
           "Failed to cancel action server for %s", action_name_.c_str());
       }
-      RCLCPP_INFO(node_->get_logger(), "?urrent goal cancelled");
+      rclcpp::Rate(1).sleep(); //  Wait for the action is aborted.
+      RCLCPP_INFO(node_->get_logger(), "Current goal cancelled");
     }
 
     setStatus(BT::NodeStatus::IDLE);
