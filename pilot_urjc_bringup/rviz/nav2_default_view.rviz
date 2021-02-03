@@ -74,85 +74,35 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        base_antenna_left_link:
-          Value: true
-        base_antenna_right_link:
-          Value: true
-        base_cover_link:
-          Value: true
         base_footprint:
-          Value: true
-        base_imu_link:
-          Value: true
-        base_laser_link:
           Value: true
         base_link:
           Value: true
-        base_mic_back_left_link:
+        base_scan:
           Value: true
-        base_mic_back_right_link:
+        camera_depth_frame:
           Value: true
-        base_mic_front_left_link:
+        camera_depth_optical_frame:
           Value: true
-        base_mic_front_right_link:
+        camera_link:
           Value: true
-        base_sonar_01_link:
+        camera_rgb_frame:
           Value: true
-        base_sonar_02_link:
+        camera_rgb_optical_frame:
           Value: true
-        base_sonar_03_link:
+        caster_back_left_link:
           Value: true
-        caster_back_left_1_link:
+        caster_back_right_link:
           Value: true
-        caster_back_left_2_link:
-          Value: true
-        caster_back_right_1_link:
-          Value: true
-        caster_back_right_2_link:
-          Value: true
-        caster_front_left_1_link:
-          Value: true
-        caster_front_left_2_link:
-          Value: true
-        caster_front_right_1_link:
-          Value: true
-        caster_front_right_2_link:
-          Value: true
-        head_1_link:
-          Value: true
-        head_2_link:
+        imu_link:
           Value: true
         map:
           Value: true
         odom:
           Value: true
-        rgbd_laser_link:
-          Value: true
-        suspension_left_link:
-          Value: true
-        suspension_right_link:
-          Value: true
-        torso_fixed_column_link:
-          Value: true
-        torso_fixed_link:
-          Value: true
-        torso_lift_link:
-          Value: true
         wheel_left_link:
           Value: true
         wheel_right_link:
-          Value: true
-        xtion_depth_frame:
-          Value: true
-        xtion_depth_optical_frame:
-          Value: true
-        xtion_link:
-          Value: true
-        xtion_optical_frame:
-          Value: true
-        xtion_rgb_frame:
-          Value: true
-        xtion_rgb_optical_frame:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -163,66 +113,26 @@ Visualization Manager:
         map:
           odom:
             base_footprint:
-              base_cover_link:
-                {}
               base_link:
-                base_antenna_left_link:
+                base_scan:
                   {}
-                base_antenna_right_link:
+                camera_link:
+                  camera_depth_frame:
+                    camera_depth_optical_frame:
+                      {}
+                  camera_rgb_frame:
+                    camera_rgb_optical_frame:
+                      {}
+                caster_back_left_link:
                   {}
-                base_imu_link:
+                caster_back_right_link:
                   {}
-                base_laser_link:
+                imu_link:
                   {}
-                base_mic_back_left_link:
+                wheel_left_link:
                   {}
-                base_mic_back_right_link:
+                wheel_right_link:
                   {}
-                base_mic_front_left_link:
-                  {}
-                base_mic_front_right_link:
-                  {}
-                base_sonar_01_link:
-                  {}
-                base_sonar_02_link:
-                  {}
-                base_sonar_03_link:
-                  {}
-                caster_back_left_1_link:
-                  caster_back_left_2_link:
-                    {}
-                caster_back_right_1_link:
-                  caster_back_right_2_link:
-                    {}
-                caster_front_left_1_link:
-                  caster_front_left_2_link:
-                    {}
-                caster_front_right_1_link:
-                  caster_front_right_2_link:
-                    {}
-                suspension_left_link:
-                  wheel_left_link:
-                    {}
-                suspension_right_link:
-                  wheel_right_link:
-                    {}
-                torso_fixed_column_link:
-                  {}
-                torso_fixed_link:
-                  torso_lift_link:
-                    head_1_link:
-                      head_2_link:
-                        xtion_link:
-                          xtion_depth_frame:
-                            xtion_depth_optical_frame:
-                              {}
-                          xtion_optical_frame:
-                            {}
-                          xtion_rgb_frame:
-                            xtion_rgb_optical_frame:
-                              {}
-              rgbd_laser_link:
-                {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -666,25 +576,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 27.351200103759766
+      Distance: 13.983463287353516
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 9.992274284362793
-        Y: 47.268577575683594
-        Z: 0.002964019775390625
+        X: 0.19543805718421936
+        Y: 0.14180904626846313
+        Z: 1.9618659019470215
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.4708980321884155
+      Pitch: 1.429796576499939
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
-      Yaw: 2.480764627456665
+      Yaw: 4.72576379776001
     Saved: ~
 Window Geometry:
   Displays:

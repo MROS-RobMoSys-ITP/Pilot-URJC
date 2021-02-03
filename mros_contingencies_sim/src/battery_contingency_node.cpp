@@ -129,6 +129,7 @@ void BatteryContingency::amclCallback(
     setOldposition(msg->pose.pose);
   }
   battery_level_ = battery_level_ + distance_ * BATTERY_CONSUMPTION;
+  RCLCPP_WARN(get_logger(), "battery level %f",battery_level_);
   if (battery_level_ < 0.0) {
     battery_level_ = 0.0;
   }
@@ -141,7 +142,6 @@ void BatteryContingency::amclCallback(
   {
     publish_diagnostic(std::string("battery"), std::string("RECOVERED"), std::string("Component status"));
     battery_failed_ = false;
-
   }
   
 
