@@ -26,8 +26,7 @@ from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
-
-from nav2_common.launch import Node
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
@@ -69,7 +68,7 @@ def generate_launch_description():
         description='Whether to apply a namespace to the navigation stack')
     declare_map_yaml_cmd = DeclareLaunchArgument(
         'map',
-        default_value=os.path.join(pilot_dir, 'maps/urjc/restaurant', 'map.yaml'),
+        default_value=os.path.join(pilot_dir, 'maps/urjc/aulario', 'map.yaml'),
         description='Full path to map file to load')
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(
@@ -100,7 +99,7 @@ def generate_launch_description():
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
         'rviz_config_file',
-        default_value=os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz'),
+        default_value=os.path.join(pilot_dir, 'rviz', 'nav2_default_view.rviz'),
         description='Full path to the RVIZ config file to use')
 
     declare_use_rviz_cmd = DeclareLaunchArgument(
@@ -109,7 +108,7 @@ def generate_launch_description():
         description='Whether to start RVIZ')
     declare_cmd_vel_topic_cmd = DeclareLaunchArgument(
         'cmd_vel_topic',
-        default_value='cmd_vel_mux',
+        default_value='nav_vel',
         description='Command velocity topic')
 
 
@@ -142,18 +141,6 @@ def generate_launch_description():
                           'cmd_vel_topic': cmd_vel_topic}.items())
 
 
-    shm_model_path = (get_package_share_directory('pilot_urjc_bringup') +
-                '/params/pilot_modes.yaml')
-
-    # Start as a normal node is currently not possible.
-    # Path to SHM file should be passed as a ROS parameter.
-    mode_manager_node = Node(
-        package='system_modes',
-        executable='mode_manager',
-        parameters=[{'modelfile': shm_model_path}],
-        output='screen')
-        
-
     # Create the launch description and populate
     ld = LaunchDescription()
 
@@ -178,9 +165,6 @@ def generate_launch_description():
 
     # Add the actions to launch all of the navigation nodes
     ld.add_action(bringup_cmd)
-
-    # Add system modes manager
-    ld.add_action(mode_manager_node)
 
 
     return ld
