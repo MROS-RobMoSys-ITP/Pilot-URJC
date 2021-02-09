@@ -12,51 +12,51 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PILOT_BEHAVIOR__BEHAVIOR_TREE_NODES__NAVIGATETOWP_HPP_
-#define PILOT_BEHAVIOR__BEHAVIOR_TREE_NODES__NAVIGATETOWP_HPP_
+#ifndef PILOT_BEHAVIOR__BEHAVIOR_TREE_NODES__RECHARGE_HPP_
+#define PILOT_BEHAVIOR__BEHAVIOR_TREE_NODES__RECHARGE_HPP_
 
 #include <string>
 #include <memory>
 
 #include "behaviortree_cpp_v3/behavior_tree.h"
 #include "behaviortree_cpp_v3/bt_factory.h"
+#include "std_srvs/srv/empty.hpp"
 
-#include "nav2_msgs/action/navigate_to_pose.hpp"
-#include "mros2_msgs/action/navigate_to_pose_qos.hpp"
-
-#include "pilot_behavior/BTActionNode.hpp"
 #include "rclcpp/rclcpp.hpp"
-
-using NavigateToPoseQos = mros2_msgs::action::NavigateToPoseQos;
 
 namespace pilot_behavior
 {
 
-class NavigateToWp : public BtActionNode<NavigateToPoseQos>
+class Recharge : public BT::AsyncActionNode
 {
 public:
-  explicit NavigateToWp(
-    const std::string & xml_tag_name,
+  explicit Recharge(
     const std::string & action_name,
     const BT::NodeConfiguration & conf);
 
-  void on_tick() override;
-  void on_wait_for_result() override;
-
-  BT::NodeStatus on_success() override;
+  BT::NodeStatus tick() override;
 
   static BT::PortsList providedPorts()
   {
-    return { 
-      BT::InputPort<std::string>("server_name", "Action server name"),
-      BT::InputPort<std::string>("goal") 
+    return providedBasicPorts({});
+  }
+
+  static BT::PortsList providedBasicPorts(BT::PortsList addition)
+  {
+    BT::PortsList basic = {
+      BT::InputPort<std::chrono::milliseconds>("server_timeout")
     };
+    basic.insert(addition.begin(), addition.end());
+
+    return basic;
   }
 private:
   rclcpp::Node::SharedPtr node_;
-  geometry_msgs::msg::Pose wp_;
+  rclcpp::Client<std_srvs::srv::Empty>::SharedPtr client_;
+  
+  void srv_call();
 };
 
 }  // namespace pilot_behavior
 
-#endif  // PILOT_BEHAVIOR__BEHAVIOR_TREE_NODES__NAVIGATETOWP_HPP_
+#endif  // PILOT_BEHAVIOR__BEHAVIOR_TREE_NODES__RECHARGE_HPP_

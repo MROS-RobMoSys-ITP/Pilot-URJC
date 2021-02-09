@@ -19,7 +19,7 @@
 #include <memory>
 
 using namespace std::chrono_literals;
-using std::placeholders::_1;
+using namespace std::placeholders;
 
 namespace mros_contingencies_sim
 {
@@ -41,15 +41,24 @@ BatteryContingency::BatteryContingency(const std::string & name)
     "/diagnostics",
     rclcpp::QoS(10));
   
-  std::chrono::milliseconds period(1000); 
+  std::chrono::milliseconds period(2000); 
   publish_timer_ = create_wall_timer(std::chrono::duration_cast<std::chrono::nanoseconds>(period), std::bind(
     &BatteryContingency::timerCallback, this));
-
-  battery_level_ = 1.0;
+  battery_charged_= create_service<std_srvs::srv::Empty>("battery_contingency/battery_charged", std::bind(
+    &BatteryContingency::batteryCharged, this, _1, _2, _3));
+  battery_level_ = 0.6;
   current_vel_= 0.0;
   distance_= 0.0;
+  battery_failed_ = false;
   RCLCPP_INFO(this->get_logger(), "BatteryContingency class initialization completed!!");
 
+}
+void BatteryContingency::batteryCharged(
+  const std::shared_ptr<rmw_request_id_t>/*request_header*/,
+  const std::shared_ptr<std_srvs::srv::Empty::Request> /*request*/,
+  std::shared_ptr<std_srvs::srv::Empty::Response> /*response*/)
+{
+  battery_level_ = 1.0;
 }
 
 float BatteryContingency::calculateDistance(
@@ -65,7 +74,9 @@ void BatteryContingency::setOldposition(geometry_msgs::msg::Pose current_pose)
   last_pose_ = current_pose;
 }
 
-void BatteryContingency::publish_diagnostic(std::string key, std::string value)
+void BatteryContingency::publish_diagnostic(std::string key, 
+                                            std::string value,
+                                            std::string message)
 {
   diagnostic_msgs::msg::DiagnosticArray diagnostic_msg;
   std::vector<diagnostic_msgs::msg::DiagnosticStatus> diag_status;
@@ -79,11 +90,12 @@ void BatteryContingency::publish_diagnostic(std::string key, std::string value)
   key_value.value = value;
   key_values.push_back(key_value);
   status_msg.values = key_values;
-  status_msg.message = "QA status";
+  status_msg.message = message;
   diag_status.push_back(status_msg);
   diagnostic_msg.status = diag_status;
   diagnostics_pub_->publish(diagnostic_msg);
 }
+
 
 void BatteryContingency::odomCallback(const nav_msgs::msg::Odometry::SharedPtr odom_msg)
 {
@@ -97,15 +109,8 @@ void BatteryContingency::odomCallback(const nav_msgs::msg::Odometry::SharedPtr o
 
 void BatteryContingency::timerCallback()
 {
-
-  battery_level_ = battery_level_ + distance_ * BATTERY_CONSUMPTION;
-  if (battery_level_ < 0.0) {
-    battery_level_ = 0.0;
-  }
-  publish_diagnostic(std::string("battery_level"), std::to_string(battery_level_));
-
   float energy_comspumtion = current_vel_ * ENERGY_CONSUMPTION_FACTOR;
-  publish_diagnostic(std::string("energy"), std::to_string(energy_comspumtion));
+  publish_diagnostic(std::string("energy"), std::to_string(energy_comspumtion), std::string("QA status"));
   current_vel_ = 0;
 
 }
@@ -123,6 +128,23 @@ void BatteryContingency::amclCallback(
   } else {
     setOldposition(msg->pose.pose);
   }
+  battery_level_ = battery_level_ + distance_ * BATTERY_CONSUMPTION;
+  RCLCPP_WARN(get_logger(), "battery level %f",battery_level_);
+  if (battery_level_ < 0.0) {
+    battery_level_ = 0.0;
+  }
+  else if(battery_level_ < 0.5 && !battery_failed_)
+  {
+    publish_diagnostic(std::string("battery"), std::string("FALSE"), std::string("Component status"));
+    battery_failed_ = true;
+  }
+  else if(battery_level_ > 0.8 && battery_failed_ )
+  {
+    publish_diagnostic(std::string("battery"), std::string("RECOVERED"), std::string("Component status"));
+    battery_failed_ = false;
+  }
+  
+
 }
 
 }  // namespace mros_contingencies_sim

@@ -39,7 +39,7 @@ def generate_launch_description():
     map_yaml_file = LaunchConfiguration('map')
     use_sim_time = LaunchConfiguration('use_sim_time')
     params_file = LaunchConfiguration('params_file')
-    bt_xml_file = LaunchConfiguration('bt_xml_file')
+    default_bt_xml_filename = LaunchConfiguration('default_bt_xml_filename')
     autostart = LaunchConfiguration('autostart')
     cmd_vel_topic = LaunchConfiguration('cmd_vel_topic')
 
@@ -49,10 +49,10 @@ def generate_launch_description():
 
     # TODO(orduno) Remove once `PushNodeRemapping` is resolved
     #              https://github.com/ros2/launch_ros/issues/56
-    remappings = [((namespace, '/tf'), '/tf'),
-                  ((namespace, '/tf_static'), '/tf_static'),
-                  ('/tf', 'tf'),
-                  ('/tf_static', 'tf_static')]
+    #remappings = [((namespace, '/tf'), '/tf'),
+    #              ((namespace, '/tf_static'), '/tf_static'),
+    #              ('/tf', 'tf'),
+    #              ('/tf_static', 'tf_static')]
 
     # Declare the launch arguments
     declare_namespace_cmd = DeclareLaunchArgument(
@@ -79,9 +79,9 @@ def generate_launch_description():
         description='Full path to the ROS2 parameters file to use for all launched nodes')
 
     declare_bt_xml_cmd = DeclareLaunchArgument(
-        'bt_xml_file',
+        'default_bt_xml_filename',
         default_value=os.path.join(
-            get_package_share_directory('nav2_bt_modes_navigator'),
+            get_package_share_directory('nav2_bt_navigator'),
             'behavior_trees', 'navigate_w_replanning_and_recovery.xml'),
         description='Full path to the behavior tree xml file to use')
 
@@ -118,7 +118,7 @@ def generate_launch_description():
                           'map': map_yaml_file,
                           'use_sim_time': use_sim_time,
                           'params_file': params_file,
-                          'bt_xml_file': bt_xml_file,
+                          'default_bt_xml_filename': default_bt_xml_filename,
                           'autostart': autostart,
                           'cmd_vel_topic': cmd_vel_topic}.items())
 

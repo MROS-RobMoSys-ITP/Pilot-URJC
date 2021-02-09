@@ -5,45 +5,38 @@ pilot:
     type: system
     parts:
       amcl
-      bt_navigator
       controller_server
       pointcloud_to_laser
       laser_resender
     modes:
       __DEFAULT__:
         amcl: inactive
-        bt_navigator: inactive
         controller_server: inactive
         pointcloud_to_laser: inactive
         laser_resender: inactive
       f_normal_mode:
         amcl: active
-        bt_navigator: active
         controller_server: active
         pointcloud_to_laser: inactive
         laser_resender: active
       # [SkillRealization RGBD camera]
       f_degraded_mode:
         amcl: active.DEGRADED
-        bt_navigator: active
         controller_server: active.DEGRADED
         pointcloud_to_laser: active
         laser_resender: unconfigured
       f_performance_mode:
         amcl: active
-        bt_navigator: active.SIMPLE
         controller_server: active.FAST
         pointcloud_to_laser: inactive
         laser_resender: active
       f_energy_saving_mode:
         amcl: active
-        bt_navigator: active.LOW_BATTERY
         controller_server: active.SLOW
         pointcloud_to_laser: inactive
         laser_resender: active
       f_slow_mode:
         amcl: active
-        bt_navigator: active
         controller_server: active.SLOW
         pointcloud_to_laser: inactive
         laser_resender: active
@@ -70,20 +63,6 @@ amcl:
           alpha4: 0.05
           alpha5: 0.05
 
-bt_navigator:
-  ros__parameters:
-    type: node
-    modes:
-      __DEFAULT__:
-        ros__parameters:
-          default_bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
-      SIMPLE:
-        ros__parameters:
-          default_bt_xml_filename: "navigate_w_replanning.xml"
-      LOW_BATTERY:
-        ros__parameters:
-          default_bt_xml_filename: "navigate_w_replanning_and_battery_warning.xml"
-
 laser_resender:
   ros__parameters:
     type: node
@@ -106,8 +85,8 @@ controller_server:
     modes:
       __DEFAULT__:
         ros__parameters:
-          FollowPath.max_vel_x: 0.4
-          FollowPath.max_speed_xy: 0.4
+          FollowPath.max_vel_x: 0.3
+          FollowPath.max_speed_xy: 0.3
           FollowPath.max_vel_theta: 1.25
           FollowPath.transform_tolerance: 0.2
       SLOW:

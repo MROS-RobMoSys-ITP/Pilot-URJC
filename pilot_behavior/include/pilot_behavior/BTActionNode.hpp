@@ -40,7 +40,7 @@ public:
     // Initialize the input and output messages
     goal_ = typename ActionT::Goal();
     result_ = typename rclcpp_action::ClientGoalHandle<ActionT>::WrappedResult();
-
+    feedback_ = std::make_shared<typename ActionT::Feedback>();
     std::string remapped_action_name;
     if (getInput("server_name", remapped_action_name)) {
       action_name_ = remapped_action_name;
@@ -134,7 +134,6 @@ public:
 
       // user defined callback
       on_tick();
-
       on_new_goal_received();
     }
 
@@ -188,6 +187,8 @@ public:
           node_->get_logger(),
           "Failed to cancel action server for %s", action_name_.c_str());
       }
+      rclcpp::Rate(1).sleep(); //  Wait for the action is aborted.
+      RCLCPP_INFO(node_->get_logger(), "Current goal cancelled");
     }
 
     setStatus(BT::NodeStatus::IDLE);
@@ -224,9 +225,15 @@ protected:
           result_ = result;
         }
       };
+    auto feedback_callback = [this](
+      typename rclcpp_action::ClientGoalHandle<ActionT>::SharedPtr,
+      const std::shared_ptr<const typename ActionT::Feedback> feedback)
+      {
+        feedback_ = feedback;
+      };
+    send_goal_options.feedback_callback = feedback_callback;
 
     auto future_goal_handle = action_client_->async_send_goal(goal_, send_goal_options);
-
     if (rclcpp::spin_until_future_complete(node_, future_goal_handle) !=
       rclcpp::FutureReturnCode::SUCCESS)
     {
@@ -256,6 +263,7 @@ protected:
   bool goal_result_available_{false};
   typename rclcpp_action::ClientGoalHandle<ActionT>::SharedPtr goal_handle_;
   typename rclcpp_action::ClientGoalHandle<ActionT>::WrappedResult result_;
+  typename std::shared_ptr<const typename ActionT::Feedback> feedback_;
 
   // The node that will be used for any ROS operations
   rclcpp::Node::SharedPtr node_;
