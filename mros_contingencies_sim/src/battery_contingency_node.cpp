@@ -112,6 +112,16 @@ void BatteryContingency::timerCallback()
   float energy_comspumtion = current_vel_ * ENERGY_CONSUMPTION_FACTOR;
   publish_diagnostic(std::string("energy"), std::to_string(energy_comspumtion), std::string("QA status"));
   current_vel_ = 0;
+  if(battery_level_ < 0.5 && !battery_failed_)
+  {
+    publish_diagnostic(std::string("battery"), std::string("FALSE"), std::string("Component status"));
+    battery_failed_ = true;
+  }
+  else if(battery_level_ > 0.8 && battery_failed_ )
+  {
+    publish_diagnostic(std::string("battery"), std::string("RECOVERED"), std::string("Component status"));
+    battery_failed_ = false;
+  }
 
 }
 
@@ -133,17 +143,6 @@ void BatteryContingency::amclCallback(
   if (battery_level_ < 0.0) {
     battery_level_ = 0.0;
   }
-  else if(battery_level_ < 0.5 && !battery_failed_)
-  {
-    publish_diagnostic(std::string("battery"), std::string("FALSE"), std::string("Component status"));
-    battery_failed_ = true;
-  }
-  else if(battery_level_ > 0.8 && battery_failed_ )
-  {
-    publish_diagnostic(std::string("battery"), std::string("RECOVERED"), std::string("Component status"));
-    battery_failed_ = false;
-  }
-  
 
 }
 
