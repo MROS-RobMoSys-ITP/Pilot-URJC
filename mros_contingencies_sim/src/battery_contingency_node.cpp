@@ -46,7 +46,7 @@ BatteryContingency::BatteryContingency(const std::string & name)
     &BatteryContingency::timerCallback, this));
   battery_charged_= create_service<std_srvs::srv::Empty>("battery_contingency/battery_charged", std::bind(
     &BatteryContingency::batteryCharged, this, _1, _2, _3));
-  battery_level_ = 0.6;
+  battery_level_ = 0.7;
   current_vel_= 0.0;
   distance_= 0.0;
   battery_failed_ = false;
