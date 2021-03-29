@@ -17,5 +17,4 @@ repositories:
   utils/system_modes:
     type: git
     url: https://github.com/micro-ROS/system_modes
-    version: feature/rules
-
+    version: master
